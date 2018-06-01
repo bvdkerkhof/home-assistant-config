@@ -5,6 +5,6 @@ SRCDIR=/home/homeassistant/.homeassistant/*.yaml
 DESDIR=/home/pi
 sudo tar -cpzf $DESDIR/$FILENAME $SRCDIR
 echo $FILENAME
-ftp-upload -h 192.168.2.11 -u <FTPUSERNAME> --password <FTPPASSWORD> $DESDIR/$FILENAME
+ftp-upload -h 192.168.1.1 -u <FTPUSERNAME> --password <FTPPASSWORD> $DESDIR/$FILENAME
 rm -f $DESDIR/$FILENAME
 #END#!/bin/bash
