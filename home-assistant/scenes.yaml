@@ -1,0 +1,120 @@
+  - name: Nacht woonkamer hal
+    entities:
+      light.woonkamer: off
+      light.hal: off
+  - name: Woonkamer aan
+    entities:
+      light.spot_woonkamer1:
+        state: on
+        xy_color: [0.4575, 0.4101]
+        brightness: 254
+      light.spot_woonkamer2:
+        state: on
+        xy_color: [0.4575, 0.4101]
+        brightness: 254
+      light.spot_woonkamer3:
+        state: on
+        xy_color: [0.4575, 0.4101]
+        brightness: 254
+  - name: Woonkamer gedimd
+    entities:
+      light.spot_woonkamer1:
+        state: on
+        xy_color: [0.457, 0.4098]
+        brightness: 50
+      light.spot_woonkamer2:
+        state: on
+        xy_color: [0.457, 0.4098]
+        brightness: 50
+      light.spot_woonkamer3:
+        state: on
+        xy_color: [0.457, 0.4098]
+        brightness: 50
+  - name: Woonkamer voetbal
+    entities:
+      light.spot_woonkamer1:
+        state: on
+        xy_color: [0.4084, 0.5168]
+        brightness: 199
+      light.spot_woonkamer2:
+        state: on
+        xy_color: [0.4084, 0.5168]
+        brightness: 199
+      light.spot_woonkamer3:
+        state: on
+        xy_color: [0.4084, 0.5168]
+        brightness: 199
+  - name: Woonkamer uit
+    entities:
+      light.spot_woonkamer1: off
+      light.spot_woonkamer2: off
+      light.spot_woonkamer3: off
+  - name: Woonkamer film
+    entities:
+      light.spot_woonkamer1:
+        state: on
+        xy_color: [0.457, 0.4098]
+        brightness: 40
+        transition: 2
+      light.spot_woonkamer2:
+        state: on
+        xy_color: [0.457, 0.4098]
+        brightness: 40
+        transition: 2
+      light.spot_woonkamer3:
+        state: on
+        xy_color: [0.457, 0.4098]
+        brightness: 40
+        transition: 2
+  - name: Hal aan
+    entities:
+      light.hal_lamp:
+        state: on
+        brightness: 254
+  - name: Hal gedimd
+    entities:
+      light.hal_lamp:
+        state: on
+        brightness: 50
+  - name: Hal uit
+    entities:
+      light.hal_lamp: off
+  - name: Overloop aan
+    entities:
+      light.overloop:
+        state: on
+        brightness: 254
+  - name: Berging aan
+    entities:
+      light.berging:
+        state: on
+        brightness: 254
+  - name: Berging gedimd
+    entities:
+      light.berging:
+        state: on
+        brightness: 50
+  - name: Berging uit
+    entities:
+      light.berging: off
+  - name: Overloop gedimd
+    entities:
+      light.overloop:
+        state: on
+        brightness: 126
+  - name: Overloop uit
+    entities:
+      light.overloop: off
+  - name: Slaapkamer aan
+    entities:
+      light.slaapkamer:
+        state: on
+        brightness: 254
+  - name: Slaapkamer gedimd
+    entities:
+      light.slaapkamer:
+        state: on
+        brightness: 1
+  - name: Slaapkamer uit
+    entities:
+      light.slaapkamer: off

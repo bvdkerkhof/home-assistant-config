@@ -1,0 +1,281 @@
+  - alias: Nacht woonkamer hal uit
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.netatmo_woonkamer_noise
+      below: '40'
+    condition:
+    - condition: time
+      after: '00:00:00'
+      before: '05:00:00'
+    - condition: state
+      entity_id: device_tracker.x
+      state: 'home'
+    action:
+      service: scene.turn_on
+      entity_id: scene.nacht_woonkamer_hal
+
+  - alias: Hal aan selected
+    trigger:
+      platform: state
+      entity_id: input_select.set_hal_light
+      to: "Hal aan"
+    action:
+      service: scene.turn_on
+      entity_id: scene.hal_aan
+  - alias: Hal gedimd selected
+    trigger:
+      platform: state
+      entity_id: input_select.set_hal_light 
+      to: "Hal gedimd" 
+    action:
+      service: scene.turn_on 
+      entity_id: scene.hal_gedimd 
+  - alias: Hal uit selected
+    trigger:
+      platform: state
+      entity_id: input_select.set_hal_light 
+      to: "Hal uit" 
+    action:
+      service: scene.turn_on 
+      entity_id: scene.hal_uit
+
+
+  - alias: Berging txkomen aan
+    trigger:
+      platform: state
+      entity_id: device_tracker.x
+      from: not_home
+      to: home
+    condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+    - condition: state
+      entity_id: device_tracker.x
+      state: 'not_home'
+    - condition: state
+      entity_id: light.berging
+      state: 'off'
+    - condition: state
+      entity_id: light.woonkamer
+      state: 'off'
+    action:
+      service: scene.turn_on
+      entity_id: scene.berging_gedimd
+
+
+  - alias: Netatmo Battery
+    trigger:
+      platform: state
+      entity_id: sensor.netatmo_tuin_battery
+      from: "medium"
+      to: "low"
+    action:
+      service: notify.telegram
+      data:
+        title: "Netatmo tuin batterij"
+        message: "De batterij in de tuin module is bijna leeg! Vervang deze tijdig."
+  - alias: Hal Sunset
+    trigger:
+      platform: sun
+      event: sunset
+      offset: "-00:15:00"
+    action:
+      - service: scene.turn_on
+        entity_id: scene.hal_gedimd
+
+  - alias: Scan Kodi video
+    trigger:
+      platform: time
+      minutes: 30
+      seconds: 0
+    condition:
+    - condition: state
+      entity_id: media_player.kodi
+      state: "idle"
+    action:
+      service: script.update_library
+
+  - alias: Hal lamp weekdagen uit
+    trigger:
+      platform: state
+      entity_id: sun.sun
+      to: 'above_horizon'
+    condition:
+    - condition: state
+      entity_id: device_tracker.x
+      state: 'not_home'
+      for:
+        minutes: 10
+    - condition: state
+      entity_id: device_tracker.x
+      state: 'not_home'
+      for:
+        minutes: 10
+    - condition: time
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+    action:
+      service: scene.turn_on
+      entity_id: scene.hal_uit
+
+#  - alias: Hal lamp weekdagen uit
+#    trigger:
+#      platform: time
+#      at: "08:30:00"
+#    condition:
+#    - condition: time
+#      weekday:
+#        - mon
+#        - tue
+#        - wed
+#        - thu
+#        - fri
+#    action:
+#      service: scene.turn_on
+#      entity_id: scene.hal_uit
+  - alias: "Media player paused/stopped"
+    trigger:
+      - platform: state
+        entity_id: media_player.kodi
+        from: 'playing'
+        to: 'idle'
+    condition:
+      - condition: state
+        entity_id: sun.sun
+        state: 'below_horizon'
+    action:
+        service: scene.turn_on
+        entity_id: scene.woonkamer_aan
+
+  - alias: "Media player playing"
+    trigger:
+      - platform: state
+        entity_id: media_player.kodi
+        to: 'playing'
+        from: 'idle'
+    condition:
+      - condition: state
+        entity_id: light.woonkamer
+        state: 'on'
+    action:
+        service: scene.turn_on
+        entity_id: scene.woonkamer_film
+
+  - alias: Update notifications
+    trigger:
+      - platform: state
+        entity_id: updater.updater
+    action:
+      service: notify.telegram
+      data:
+        title: 'Home Assistant {{states.updater.updater.state}}'
+        message: 'Er is een nieuwe Home Assistant release beschikbaar.'
+
+  - alias: P2000 Notify
+    trigger:
+      platform: event
+      event_type: p2000
+    action:
+    - service_template: notify.telegram
+      data_template:
+        title: "P2000"
+        message: "{{ trigger.event.data.text }}"
+
+  - alias: PostNL notify
+    trigger: 
+      platform: numeric_state
+      entity_id: sensor.postnl
+      above: '0'
+    action:
+      service: notify.telegram
+      data:
+        title: "PostNL"
+        message: "Er is {{ states.sensor.postnl.state }} pakket onderweg. Kijk in Home Assistant of op https://jouw.postnl.nl voor meer info."
+
+  - alias: Traveltime to work
+    trigger:
+      platform: state
+      entity_id: device_tracker.x
+      from: home
+      to: not_home
+    condition:
+      condition: time
+      after: '07:00'
+      before: '09:00'
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+    action:
+      service: notify.telegram
+      data:
+        title: "Reistijd x"
+        message: "Het kost je {{ states.sensor.tx_naar_x.state }}min om bij x te komen. Je kunt het beste via {{states.sensor.waze_route_naar_x.state }} rijden"
+  - alias: Traveltime to home
+    trigger:
+      platform: zone
+      entity_id: device_tracker.x
+      zone: zone.x
+      event: "leave"
+#    condition:
+#      condition: time
+#      after: '15:30'
+#      before: '17:30'
+#      weekday:
+#        - mon
+#        - tue
+#        - wed
+#        - thu
+#        - fri
+    action:
+      service: notify.telegram
+      data:
+        title: "Reistijd naar x"
+        message: "Het kost je {{ states.sensor.x_naar_x.state }}min om naar x te gaan. Je kunt het beste rijden via {{states.sensor.waze_route_naar_x.state}}"
+
+  - alias: Inkt Levels
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.hp_ink_black
+        below: '20'
+      - platform: numeric_state
+        entity_id: sensor.hp_ink_color
+        below: '20'
+    action:
+    - service_template: notify.telegram
+      data_template:
+        title: "HP Envy"
+        message: "Inkt niveau van de printer is laag!"
+
+  - alias: 'WakeUp Light Bedroom'
+    hide_entity: True
+    trigger:
+      platform: template
+      value_template: '{{ states.sensor.time.state == states.sensor.wakeup_start_time_lights.state }}'
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.wakeup
+          state: 'on'
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: input_boolean.wakeup_weekends
+              state: 'on'
+            - condition: time
+              weekday:
+                - mon
+                - tue
+                - wed
+                - thu
+                - fri
+    action:
+      service: script.wakeup_bedroom
