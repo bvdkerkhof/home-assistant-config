@@ -1,1 +1,263 @@
-#temp
+homeassistant:
+ 
+
+zone:
+  - name: Home
+    latitude: #
+    longitude: #
+    radius: #
+    icon: mdi:home
+
+    ## CUSTOM ZONES
+
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+
+
+media_player:
+  - platform: kodi
+    host: x.x.x.x
+    port: xxxx
+  - platform: ps4
+    host: x.x.x.x
+
+netatmo:
+  api_key: !secret netatmo_apikey
+  secret_key: !secret netatmo_secretkey
+  username: !secret netatmo_username
+  password: !secret netatmo_password
+
+sensor:
+  - platform: netatmo
+    modules:
+      Woonkamer:
+      Tuin:
+  - platform: buienradar
+    name: LOCATION
+    monitored_conditions:
+      - temperature_1d
+      - temperature_2d
+      - temperature_3d
+      - symbol_1d
+      - symbol_2d
+      - symbol_3d
+      - rainchance_1d
+      - rainchance_2d
+      - rainchance_3d
+      - condition_1d
+      - condition_2d
+      - condition_3d
+  - platform: speedtest
+    hour:
+      - 4
+      - 12
+      - 23
+    monitored_conditions:
+      - ping
+      - download
+      - upload
+    server_id: 1671
+  - platform: uptime
+    name: Uptime Home Assistant
+    unit_of_measurement: days
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+        arg: /home
+      - type: memory_use_percent
+      - type: load_1m
+      - type: load_5m
+      - type: load_15m
+      - type: processor_use
+  - platform: postnl
+    username: !secret postnl_username
+    password: !secret postnl_password
+
+#Hue Motion Sensor Overloop Custom REST Api uitlezen
+  - platform: rest
+    resource: http://x.x.x.x/api/MYCUSTOMKEY/sensors/26
+    value_template: '{{ value_json.state.lightlevel }}'
+    unit_of_measurement: Lux
+    name: 'x Lux'
+  
+  - platform: rest
+    resource: http://x.x.x.x/api/MYCUSTOMKEY/sensors/24
+    value_template: '{{ value_json.state.temperature | float / 100 }}'
+    unit_of_measurement: °C
+    name: 'x Temperatuur'
+
+  - platform: rest
+    resource: http://x.x.x.x/api/MYCUSTOMKEY/sensors/24
+    value_template: '{{ value_json.config.battery }}'
+    unit_of_measurement: '%'
+    name: 'x batterij'
+
+  - platform: waze_travel_time
+    origin: XX
+    destination: XX
+    region: 'EU'
+    name: Custom Name
+  - platform: waze_travel_time
+    origin: XX
+    destination: XX
+    region: 'EU'
+    name: Custom Name 2
+
+  - platform: template
+    sensors:
+      waze_route_naar_XX:
+        friendly_name: XX
+        value_template: '{{ states.sensor.XX.attributes.route}}'
+        icon_template: mdi:routes
+      waze_route_naar_XX:
+        friendly_name: XX
+        value_template: '{{ states.sensor.XX.attributes.route}}' 
+        icon_template: mdi:routes
+
+#HP Envy Printer
+  - platform: command_line
+    command: 'cat /home/pi/ink_color.txt'
+    name: HP ink color
+    scan_interval: 1800
+    unit_of_measurement: "%"
+  - platform: command_line
+    command: 'cat /home/pi/ink_black.txt'
+    name: HP ink black
+    scan_interval: 1800
+    unit_of_measurement: "%"
+
+  - platform: time_date
+    display_options:
+      - 'time'
+      - 'date'
+      - 'date_time'
+      - 'time_date'
+      - 'time_utc'
+      - 'beat'
+
+  - platform: google_travel_time
+    name: Google iPhone naar huis
+    api_key: !secret google_api4
+    origin: device_tracker.xx
+    destination: zone.home
+  - platform: google_travel_time
+    name: Google thuis xx
+    api_key: !secret google_api
+    origin: Home
+    destination: xx
+  - platform: google_travel_time
+    name: Google xx 
+    api_key: !secret google_api2
+    origin: xx
+    destination: Home
+
+
+#HUE WAKE-UP LIGHT
+  - platform: template
+    sensors:
+      wakeup_alarm_time:
+        friendly_name: 'Alarm time'
+        value_template: '{% if states.input_number.wakeup_hour.state|length == 3 %}0{% endif %}{{ states.input_number.wakeup_hour.state | int }}:{% if states.input_number.wakeup_minutes.state|length == 3 %}0{% endif %}{{ states.input_number.wakeup_minutes.state | int }}'
+
+  - platform: template
+    sensors:
+      wakeup_start_time_lights:
+        friendly_name: 'Fade-in start time'
+        value_template: >
+          {% if states.sensor.wakeup_alarm_time and states.input_number.wakeup_duration %}
+          {% set alarmtime = states.sensor.wakeup_alarm_time.state %}
+          {% set alarm_hour = alarmtime.split(":")[0] | int %}
+          {% set alarm_min = alarmtime.split(":")[1] | int %}
+          {% set light_dur = states.input_number.wakeup_duration.state | int %}
+          {% set alarm_min_light = alarm_min - light_dur %}
+          {% if alarm_min_light  < 0 %}
+          {% set alarm_min_light = alarm_min_light + 60 %}
+          {% set alarm_hour_light = alarm_hour - 1 %}
+          {% if alarm_hour_light < 0 %}{% set alarm_hour_light = 23 %}{% endif %}
+          {% if alarm_hour_light < 10 %}0{% endif %}{{ alarm_hour_light}}:{% if alarm_min_light < 10 %}0{% endif %}{{ alarm_min_light }}
+          {% else %}
+          {% if alarm_hour < 10 %}0{% endif %}{{ alarm_hour }}:{% if alarm_min_light < 10 %}0{% endif %}{{ alarm_min_light }}
+          {% endif %}
+          {% endif %}
+
+  - platform: template
+    sensors:
+      wakeup_fadein_duration:
+        friendly_name: 'Fade-in duration'
+        value_template: '{{ states.input_number.wakeup_duration.state | int }}'
+        unit_of_measurement: 'min'
+
+device_tracker:
+  - platform: unifi
+    username: !secret unifi_username
+    password: !secret unifi_password
+    host: x.x.x.x
+    port: XXX
+    verify_ssl: False
+  - platform: icloud2
+    username: !secret icloud_username
+    password: !secret icloud_password
+    account_name: !secret icloud_account
+    filter_devices: 'phone'
+
+hue:
+  bridges:
+    - host: x.x.x.x
+      allow_hue_groups: true
+
+
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_api
+    allowed_chat_ids:
+      - xx
+
+notify:
+  - name: Telegram
+    platform: telegram
+    chat_id: xx
+
+p2000:
+    regios: xx
+    disciplines: x
+    distance: xx
+    interval: 30
+
+#HUE WAKE-UP LIGHT
+input_number:
+  wakeup_hour:
+    name: Hour
+    icon: mdi:clock-in
+    initial: 6
+    min: 0
+    max: 23
+    step: 1
+  wakeup_minutes:
+    name: Minutes
+    icon: mdi:clock-in
+    initial: 30
+    min: 0
+    max: 55
+    step: 5
+  wakeup_duration:
+    name: Light fade-in duration
+    icon: mdi:clock-in
+    initial: 10
+    min: 5
+    max: 60
+    step: 5
+
+input_boolean:
+  wakeup:
+    name: 'Enable wakeup light'
+    icon: mdi:power
+    initial: off
+  wakeup_weekends:
+    name: 'Wakeup weekends'
+    icon: mdi:power
+    initial: off
