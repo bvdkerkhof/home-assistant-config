@@ -1,0 +1,337 @@
+  default_view:
+    view: yes
+    icon: mdi:home
+    entities:
+      - history_graph.temperatuur_netatmo
+      - group.zon_tijden
+      - group.hue_lights
+      - group.temperatuur_thuis
+      - weather.weerbericht_buienradar
+      - camera.buienradar
+  
+  woonkamer_tab:
+    name: Woonkamer
+    view: yes
+    icon: mdi:sofa
+    entities:
+      - group.woonkamer_lights
+      - group.woonkamer_netatmo
+      - group.woonkamer_scenes
+      - group.woonkamer_kodi
+      - media_player.playstation_4
+      - media_player.spotify
+      - history_graph.temperatuur_woonkamer
+      - history_graph.geluid_woonkamer
+      - history_graph.co2_woonkamer
+      - history_graph.luchtvochtigheid_woonkamer
+
+  hal_tab:
+    name: Hal
+    view: yes
+    icon: mdi:door
+    entities:
+      - group.hal_lights
+      - group.berging_lights
+      - group.hal_scenes
+      - group.berging_scenes
+
+  slaapkamer_tab:
+    name: Slaapkamer
+    view: yes
+    icon: mdi:hotel
+    entities:
+      - group.slaapkamer_lights
+      - group.slaapkamer_scenes
+      - group.wakeuplight
+
+  overloop_tab:
+    name: Overloop
+    view: yes
+    icon: mdi:ceiling-light
+    entities:
+      - group.overloop_lights
+      - group.overloop_motion_sensor
+      - group.overloop_scenes
+
+  tuin_tab:
+    name: Tuin
+    view: yes
+    icon: mdi:flower
+    entities:
+      - history_graph.temperatuur_netatmo
+      - camera.pollenradar
+      - group.tuin_netatmo
+      - group.weer_beringe
+      - history_graph.temperatuur_buiten
+      - history_graph.luchtvochtigheid_buiten
+
+  devices_tab:
+    name: Devices
+    view: yes
+    icon: mdi:cellphone-link
+    entities:
+      - group.device_apple
+      - group.device_other
+      - group.device_raspberryinfo
+      - group.device_printerinfo
+      - history_graph.raspberry_pi_load
+      - history_graph.pingtest_kpn
+      - history_graph.speedtest_kpn
+      - group.device_speedtest
+
+  overige_tab:
+    name: Overige
+    view: yes
+    icon: mdi:car
+    entities:
+      - group.postnl_sensors
+#      - group.waze_sensors
+      - group.google_travel_sensors
+
+  hue_lights:
+    name: Hue lampen
+    control: hidden
+    entities:
+      - light.woonkamer
+      - light.hal_lamp
+      - light.berging
+      - light.slaapkamer
+      - light.overloop
+
+  hue_lights_alert:
+    name: Hue lampen Alert
+    control: hidden
+    entities:
+      - light.spot_woonkamer1
+      - light.spot_woonkamer2
+      - light.spot_woonkamer3
+      - light.slaapkamer_lamp
+      - light.overloop_lamp
+
+  woonkamer_light:
+    name: Woonkamer
+    entities:
+      - light.woonkamer
+
+  woonkamer_lights:
+    name: Woonkamer
+    control: hidden
+    entities:
+      - light.woonkamer
+      - light.spot_woonkamer1
+      - light.spot_woonkamer2
+      - light.spot_woonkamer3
+
+  woonkamer_netatmo:
+    name: Klimaat
+    entities:
+      - sensor.netatmo_woonkamer_temperature
+      - sensor.netatmo_woonkamer_noise
+      - sensor.netatmo_woonkamer_humidity
+      - sensor.netatmo_woonkamer_co2
+      - sensor.netatmo_woonkamer_humidity
+      - sensor.netatmo_woonkamer_wifi
+
+  woonkamer_kodi:
+    name: Kodi
+    control: hidden
+    entities:
+      - media_player.kodi
+      - script.update_library
+      - script.restart_kodi
+
+  woonkamer_ps4:
+    name: Playstation 4
+    entities:
+      - media_player.playstation_4
+
+  woonkamer_scenes:
+    name: Scenes
+    entities:
+      - scene.woonkamer_aan
+      - scene.woonkamer_gedimd
+      - scene.woonkamer_voetbal
+      - scene.woonkamer_uit
+
+  hal_lights:
+    name: Hal
+    entities:
+      - light.hal
+
+  hal_scenes:
+    name: Hal Scenes
+    entities:
+      - scene.hal_aan
+      - scene.hal_gedimd
+      - scene.hal_uit
+
+  berging_lights:
+    name: Berging
+    entities:
+      - light.berging
+
+  berging_scenes:
+    name: Berging Scenes
+    entities:
+      - scene.berging_aan
+      - scene.berging_gedimd
+      - scene.berging_uit
+
+  overloop_lights:
+    name: Overloop
+    entities:
+      - light.overloop
+
+  overloop_scenes:
+    name: Scenes
+    entities:
+      - scene.overloop_aan
+      - scene.overloop_gedimd
+      - scene.overloop_uit
+
+  overloop_motion_sensor:
+    name: Hue Motion Sensor
+    entities:
+      - sensor.overloop_lux
+      - sensor.overloop_temperatuur
+      - sensor.overloop_batterij
+
+  slaapkamer_lights:
+    name: Slaapkamer
+    icon: mdi:bed-empty
+    entities:
+      - light.slaapkamer
+
+  slaapkamer_scenes:
+    name: Scenes
+    entities:
+      - scene.slaapkamer_aan
+      - scene.slaapkamer_gedimd
+      - scene.slaapkamer_uit
+
+  temperatuur_thuis:
+    name: Temperatuur
+    entities:
+      - sensor.netatmo_woonkamer_temperature
+      - sensor.overloop_temperatuur
+      - sensor.mqtt_office_temperature
+      - sensor.netatmo_tuin_temperature
+
+  zon_tijden:
+    name: Zon op/onder
+    entities:
+      -  sensor.sunrise_time
+      -  sensor.sunset_time
+
+  tuin_netatmo:
+    name: Netatmo
+    entities:
+      - sensor.netatmo_tuin_temperature
+      - sensor.netatmo_tuin_humidity
+      - sensor.netatmo_tuin_radio
+      - sensor.netatmo_tuin_battery
+
+  weer_beringe:
+    name: Weerbericht
+    entities:
+      - sensor.beringe_temperature
+      - sensor.beringe_ground_temperature
+      - sensor.beringe_precipitation
+      - sensor.beringe_precipitation_forecast_average
+      - sensor.beringe_symbol
+      - sensor.sunrise_time
+      - sensor.sunset_time
+
+  device_apple:
+    name: Apple Devices
+    icon: mdi:apple
+    entities:
+      - device_tracker.airvanbram
+      - device_tracker.ipadvanbram
+      - device_tracker.iphonebrampulse
+      - device_tracker.iphonevanbram
+      - device_tracker.iphone
+
+  device_other:
+    name: Overige
+    entities:
+      - device_tracker.android4e7c4028ee690a68
+      - device_tracker.blackphone
+      - device_tracker.pc744
+      - device_tracker.laptopyvonne
+
+  device_printerinfo:
+    name: HP Envy 5530
+    icon: mdi:printer
+    entities:
+      - sensor.hp_ink_black
+      - sensor.hp_ink_color
+
+  device_raspberryinfo:
+    name: Raspberry Pi
+    icon: mdi:raspberrypi
+    entities:
+      - sensor.load_1m
+      - sensor.load_5m
+      - sensor.load_15m
+      - sensor.memory_use_percent
+      - sensor.processor_use
+      - sensor.disk_use_percent_home
+      - sensor.uptime_home_assistant
+      - sensor.ssl_expiry
+
+  device_speedtest:
+    name: Speedtest Results
+    entities:
+      - sensor.speedtest_download
+      - sensor.speedtest_ping
+      - sensor.speedtest_upload
+
+  devices_familie:
+    name: Bram en Yvonne
+    entities:
+      - device_tracker.iphonevanbram
+      - device_tracker.android4e7c4028ee690a68
+  devices_bram:
+    name: Bram
+    entities:
+      - device_tracker.iphonevanbram
+
+  postnl_sensors:
+    name: PostNL
+    entities:
+      - sensor.postnl
+
+  waze_sensors:
+    name: Reistijd
+    entities:
+      - sensor.travel_before_sunset
+      - sensor.thuis_naar_pulse_venlo
+      - sensor.waze_route_naar_pulse
+      - sensor.pulse_venlo_naar_huis
+      - sensor.waze_route_naar_huis
+
+  google_travel_sensors:
+    name: Reistijd Google
+    entities:
+      - sensor.travel_before_sunset
+      - sensor.google_iphone_naar_huis
+      - sensor.google_naar_gemert
+      - sensor.google_thuis_naar_pulse
+#      - sensor.waze_route_naar_pulse
+      - sensor.google_pulse_naar_huis
+#      - sensor.waze_route_naar_huis
+
+#HUE WAKE-UP LIGHT
+  wakeuplight:
+    name: Wakeup Light
+    control: hidden
+    entities:
+      - sensor.wakeup_alarm_time
+      - sensor.wakeup_start_time_lights
+      - sensor.wakeup_fadein_duration
+      - input_number.wakeup_hour
+      - input_number.wakeup_minutes
+      - input_number.wakeup_duration
+      - input_boolean.wakeup
+      - input_boolean.wakeup_weekends

@@ -1,4 +1,178 @@
+  - alias: Bericht sturen als buiten kouder dan kamer en binnen >20 graden
+    initial_state: true
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.delta_temp_kamer
+        above: 1
+        for: 
+          minutes: 10
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.netatmo_woonkamer_temperature
+        above: 20
+    action:
+      - service: notify.telegram
+        data_template:
+          message: 'Het is nu buiten *{{ states.sensor.delta_temp_kamer.state }} graden kouder* dan binnen in de woonkamer waar het *{{ states.sensor.netatmo_woonkamer_temperature.state }} graden* is, tijd om het *raam open* te zetten'
+
+  - alias: Bericht sturen als buiten warmer is dan de kamer en buiten >20 graden
+    initial_state: true
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.delta_temp_kamer
+        below: -0.5
+        for: 
+          minutes: 10
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.netatmo_tuin_temperature
+        above: 20
+    action:
+      - service: notify.telegram
+        data_template:
+          message: 'Het is nu buiten *{{ (float(states.sensor.delta_temp_kamer.state))*-1 }} graden warmer* dan binnen in de woonkamer waar het *{{ states.sensor.netatmo_woonkamer_temperature.state }} graden* is, tijd om het *raam dicht* te doen'  
+
+
+  - alias: 'Afval GFT reminder Telegram'
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: 'sensor.afval_gft_buiten_offset'
+      from: 'off'
+      to: 'on'
+    action:
+    - service: notify.telegram
+      data:
+        title: '*GFT buiten zetten*'
+        message: '{{ states.calendar.afval_peel_en_maas_gft.attributes.message }}'
+  
+  - alias: 'Afval PMD reminder Telegram'
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: 'sensor.afval_pmd_buiten_offset'
+      from: 'off'
+      to: 'on'
+    action:
+    - service: notify.telegram
+      data:
+        title: '*PMD buiten zetten*'
+        message: '{{ states.calendar.afval_peel_en_maas_pmd.attributes.message }}'       
+  
+  - alias: 'Afval rest reminder Telegram'
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: 'sensor.afval_rest_buiten_offset'
+      from: 'off'
+      to: 'on'
+    action:
+    - service: notify.telegram
+      data:
+        title: '*Restafval buiten zetten*'
+        message: '{{ states.calendar.afval_peel_en_maas_rest.attributes.message }}'
+  
+  - alias: 'Afval papier reminder Telegram'
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: 'sensor.afval_papier_buiten_offset'
+      from: 'off'
+      to: 'on'
+    action:
+    - service: notify.telegram
+      data:
+        title: '*Oud Papier buiten zetten*'
+        message: '{{ states.calendar.afval_peel_en_maas_papier.attributes.message }}'
+
+  - alias: Thuis voor donker
+    initial_state: true
+    trigger:
+      platform: time
+      minutes: '/1'
+      seconds: 10
+    condition:
+      - condition: template
+        value_template: '{{ (now().strftime("%s") | int | timestamp_custom("%H:%M")) == states.sensor.travel_before_sunset.state }}'
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      - condition: state
+        entity_id: 'device_tracker.iphonevanbram'
+        state: 'Pulse Venlo'
+    action:
+      service: notify.telegram
+      data:
+        title: "*Bijna donker!*"
+        message: "De zon gaat om *{{states.sensor.sunset_time.state}}* onder. Je moet nog *{{states.sensor.google_iphone_naar_huis.state}} min* rijden om thuis te komen. Je moet nu dus gaan om op tijd thuis te zijn! De snelste route is via {{states.sensor.waze_naar_huis.attributes.route}}"
+
+
+  - alias: Lampen aan niemand thuis
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: state
+      entity_id: group.devices_familie
+      to: 'not_home'
+    condition:
+      - condition: state
+        entity_id: group.hue_lights_alert
+        state: 'on'
+    action:
+      service: notify.ios_iphonevanbram
+      data:
+        title: "Lampen aangebleven" #customizable
+#        message: "Er zijn lampen aangebleven, wat wil je dat ik doe?" #customizable 
+        message:  >
+          De volgende lampen zijn aan {% for entity_id in states.group.hue_lights.attributes.entity_id -%}
+           {% set parts = entity_id.split('.') -%}
+          {%- if states(entity_id) == 'on' %} {%- if loop.first %} {% elif loop.last %} en {% else %}, {% endif -%}{{ states[parts[0]][parts[1]].name }}{% endif -%} {%- endfor %}
+        data:
+          push:
+            badge: 0 #this will remove the badge/app icon number
+            category: 'huelight2'
+
+
+  - alias: iOS app notification action light niemand thuis
+    initial_state: true
+    hide_entity: true  
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: 'TURN_OFF_LIGHT2'
+    action:
+      service: scene.turn_on
+      entity_id: scene.alle_lampen_uit
+
+#  - alias: Lampen aan niemand thuis
+#    initial_state: true
+#    trigger:
+#      platform: state
+#      entity_id: group.devices_familie
+#      to: 'not_home'
+#    condition:
+#      - condition: state
+#        entity_id: group.hue_lights_alert
+#        state: 'on'
+#    action:
+#      service: notify.telegram
+#      data:
+#        title: "*Lampen aangebleven*"
+#        message: "Er zijn nog lampen aan terwijl iedereen weg is!
+#
+#Woonkamer: *{{states.light.woonkamer.state}}*
+#
+#Slaapkamer: *{{states.light.slaapkamer.state}}*
+#
+#Overloop: *{{states.light.overloop.state}}*"
+
   - alias: Nacht woonkamer hal uit
+    initial_state: true
     trigger:
       platform: numeric_state
       entity_id: sensor.netatmo_woonkamer_noise
@@ -8,50 +182,97 @@
       after: '00:00:00'
       before: '05:00:00'
     - condition: state
-      entity_id: device_tracker.x
+      entity_id: device_tracker.iphonevanbram
       state: 'home'
     action:
       service: scene.turn_on
       entity_id: scene.nacht_woonkamer_hal
 
-  - alias: Hal aan selected
+  - alias: Bram thuis Telegram
+    initial_state: true
     trigger:
       platform: state
-      entity_id: input_select.set_hal_light
-      to: "Hal aan"
+      entity_id: device_tracker.iphonevanbram
+      to: home
     action:
-      service: scene.turn_on
-      entity_id: scene.hal_aan
-  - alias: Hal gedimd selected
-    trigger:
-      platform: state
-      entity_id: input_select.set_hal_light 
-      to: "Hal gedimd" 
-    action:
-      service: scene.turn_on 
-      entity_id: scene.hal_gedimd 
-  - alias: Hal uit selected
-    trigger:
-      platform: state
-      entity_id: input_select.set_hal_light 
-      to: "Hal uit" 
-    action:
-      service: scene.turn_on 
-      entity_id: scene.hal_uit
+      service: notify.telegram
+      data:
+        title: "*iPhone 8 thuis*"
+        message: "Bram entered the building"
 
-
-  - alias: Berging txkomen aan
+  - alias: Bram weg Telegram
+    initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.x
-      from: not_home
+      entity_id: device_tracker.iphonevanbram
+      from: home
+      to: not_home
+    action:
+      service: notify.telegram
+      data:
+        title: "*iPhone 8 weg*" 
+        message: "Bram left the building"
+
+#  - alias: Bram Pulse thuis iOS
+#    trigger:
+#      platform: state
+#      entity_id: device_tracker.iphonebrampulse
+#      from: not_home
+#      to: home
+#    action:
+#      service: notify.ios_iphonebrampulse
+#      data:
+#        title: "Pulse is Thuis"
+#        message: "Pulse entered the building"
+#  - alias: Bram Pulse weg iOS
+#    trigger:
+#      platform: state
+#      entity_id: device_tracker.iphonebrampulse
+#      from: home
+#      to: not_home
+#    action:
+#      service: notify.ios_iphonebrampulse
+#      data:
+#        title: "Pulse is weg"
+#        message: "Pulse left the building"
+
+  - alias: Yvonne thuis Telegram
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: device_tracker.android4e7c4028ee690a68
+      to: home
+    action:
+      service: notify.telegram
+      data:
+        title: "*Android thuis*"
+        message: "Yvonne entered the building"
+
+  - alias: Yvonne weg Telegram
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: device_tracker.android4e7c4028ee690a68
+      from: home
+      to: not_home
+    action:
+      service: notify.telegram
+      data:
+        title: "*Android is weg*"
+        message: "Yvonne left the building"
+
+  - alias: Berging thuiskomen aan
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: device_tracker.iphonevanbram
       to: home
     condition:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: state
-      entity_id: device_tracker.x
+      entity_id: device_tracker.android4e7c4028ee690a68
       state: 'not_home'
     - condition: state
       entity_id: light.berging
@@ -63,19 +284,70 @@
       service: scene.turn_on
       entity_id: scene.berging_gedimd
 
-
-  - alias: Netatmo Battery
+  - alias: SSL Expires for HA
+    initial_state: true
     trigger:
-      platform: state
-      entity_id: sensor.netatmo_tuin_battery
-      from: "medium"
-      to: "low"
+      platform: numeric_state
+      entity_id: sensor.ssl_expirey
+      value_template: '{{states.sensor.ssl_expiry.state}}'
+      below: 30
     action:
       service: notify.telegram
       data:
-        title: "Netatmo tuin batterij"
-        message: "De batterij in de tuin module is bijna leeg! Vervang deze tijdig."
+        title: "*SSL Verloopt*"
+        message: "Het *LetsEncrypt* SSL certificaat voor HomeAssistant verloopt over *{{ states.sensor.ssl_expiry.state }} dagen*"
+
+#  - alias: Netatmo Tuin temp high
+#    trigger:
+#      platform: numeric_state
+#      entity_id: sensor.netatmo_tuin_temperature
+#      value_template: '{{states.sensor.netatmo_tuin_temperature.state}}'
+#      above: 23
+#    action:
+#      service: notify.telegram
+#      data:
+#        title: "*Netatmo Tuin temperatuur*"
+#        message: "De temperatuur buiten is *{{states.sensor.netatmo_tuin_temperature.state}}°C*."
+
+  - alias: Netatmo Humidity high
+    initial_state: true
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.netatmo_woonkamer_humidity
+      above: 60
+    action:
+      service: notify.telegram
+      data:
+        title: "*Netatmo Humidity woonkamer is hoog*"
+        message: "Luchtvochtigheid in de woonkamer is te hoog, *{{ states.sensor.netatmo_woonkamer_humidity.state }}%*"
+
+  - alias: Netatmo Humidity Low
+    initial_state: true
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.netatmo_woonkamer_humidity
+      below: 40
+    action:
+      service: notify.telegram
+      data:
+        title: "*Netatmo Humidity woonkamer is laag*"
+        message: "Luchtvochtigheid in de woonkamer is te laag, *{{ states.sensor.netatmo_woonkamer_humidity.state}}%*"
+
+  - alias: Netatmo Battery
+    initial_state: true
+    trigger:
+      platform: state
+      entity_id: sensor.netatmo_tuin_battery
+      #from: "medium"
+      to: "Low"
+    action:
+      service: notify.telegram
+      data:
+        title: "*Netatmo tuin batterij*"
+        message: "De batterij in de tuin module is bijna leeg (status: *low*)! Vervang deze tijdig."
+
   - alias: Hal Sunset
+    initial_state: true
     trigger:
       platform: sun
       event: sunset
@@ -85,6 +357,7 @@
         entity_id: scene.hal_gedimd
 
   - alias: Scan Kodi video
+    initial_state: true
     trigger:
       platform: time
       minutes: 30
@@ -96,19 +369,15 @@
     action:
       service: script.update_library
 
-  - alias: Hal lamp weekdagen uit
+  - alias: Hal lamp weekdagen uit overdag
+    initial_state: true
     trigger:
       platform: state
       entity_id: sun.sun
       to: 'above_horizon'
     condition:
     - condition: state
-      entity_id: device_tracker.x
-      state: 'not_home'
-      for:
-        minutes: 10
-    - condition: state
-      entity_id: device_tracker.x
+      entity_id: group.devices_familie
       state: 'not_home'
       for:
         minutes: 10
@@ -123,41 +392,26 @@
       service: scene.turn_on
       entity_id: scene.hal_uit
 
-#  - alias: Hal lamp weekdagen uit
-#    trigger:
-#      platform: time
-#      at: "08:30:00"
-#    condition:
-#    - condition: time
-#      weekday:
-#        - mon
-#        - tue
-#        - wed
-#        - thu
-#        - fri
-#    action:
-#      service: scene.turn_on
-#      entity_id: scene.hal_uit
   - alias: "Media player paused/stopped"
+    initial_state: true
     trigger:
       - platform: state
         entity_id: media_player.kodi
         from: 'playing'
-        to: 'idle'
     condition:
       - condition: state
-        entity_id: sun.sun
-        state: 'below_horizon'
+        entity_id: light.woonkamer
+        state: 'on'
     action:
         service: scene.turn_on
-        entity_id: scene.woonkamer_aan
+        entity_id: scene.woonkamer_aan_transition
 
   - alias: "Media player playing"
+    initial_state: true
     trigger:
       - platform: state
         entity_id: media_player.kodi
         to: 'playing'
-        from: 'idle'
     condition:
       - condition: state
         entity_id: light.woonkamer
@@ -167,42 +421,53 @@
         entity_id: scene.woonkamer_film
 
   - alias: Update notifications
+    initial_state: true
     trigger:
       - platform: state
         entity_id: updater.updater
     action:
       service: notify.telegram
       data:
-        title: 'Home Assistant {{states.updater.updater.state}}'
+        title: 'Home Assistant *{{states.updater.updater.state}}*'
         message: 'Er is een nieuwe Home Assistant release beschikbaar.'
 
   - alias: P2000 Notify
+    initial_state: true
     trigger:
       platform: event
       event_type: p2000
     action:
     - service_template: notify.telegram
       data_template:
-        title: "P2000"
+        title: "*P2000*"
         message: "{{ trigger.event.data.text }}"
 
   - alias: PostNL notify
+    initial_state: true
     trigger: 
       platform: numeric_state
       entity_id: sensor.postnl
       above: '0'
     action:
       service: notify.telegram
-      data:
-        title: "PostNL"
-        message: "Er is {{ states.sensor.postnl.state }} pakket onderweg. Kijk in Home Assistant of op https://jouw.postnl.nl voor meer info."
+      data_template:
+        title: "*PostNL*"
+#        message: "Er is *{{ states.sensor.postnl.state }}* pakket onderweg. Kijk in _Home Assistant_ of op _https://jouw.postnl.nl_ voor meer info."
+        message: >
+          Er is *{{ states.sensor.postnl.state}}* pakket onderweg.
+          {% for attr in states.sensor.postnl.attributes %}
+          {%- if not attr=="friendly_name" and not attr=="unit_of_measurement" and not attr=="icon" and not attr=="attribution"-%}
+           {{attr}} pakket wordt geleverd op {{states.sensor.postnl.attributes[attr]}}
+          {%- endif %}
+          {%- endfor -%}
 
   - alias: Traveltime to work
+    initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.x
-      from: home
-      to: not_home
+      entity_id: device_tracker.iphonevanbram
+      from: "home"
+      to: "not_home"
     condition:
       condition: time
       after: '07:00'
@@ -216,42 +481,35 @@
     action:
       service: notify.telegram
       data:
-        title: "Reistijd x"
-        message: "Het kost je {{ states.sensor.tx_naar_x.state }}min om bij x te komen. Je kunt het beste via {{states.sensor.waze_route_naar_x.state }} rijden"
+        title: "*Reistijd Pulse*"
+        message: "Het kost je {{ states.sensor.thuis_naar_pulse_venlo.state }}min om bij Pulse te komen. Je kunt het beste via {{states.sensor.waze_route_naar_pulse.state }} rijden"
+
   - alias: Traveltime to home
+    initial_state: true
     trigger:
       platform: zone
-      entity_id: device_tracker.x
-      zone: zone.x
+      entity_id: device_tracker.iphonevanbram
+      zone: zone.pulse_venlo
       event: "leave"
-#    condition:
-#      condition: time
-#      after: '15:30'
-#      before: '17:30'
-#      weekday:
-#        - mon
-#        - tue
-#        - wed
-#        - thu
-#        - fri
     action:
       service: notify.telegram
       data:
-        title: "Reistijd naar x"
-        message: "Het kost je {{ states.sensor.x_naar_x.state }}min om naar x te gaan. Je kunt het beste rijden via {{states.sensor.waze_route_naar_x.state}}"
+        title: "*Reistijd naar huis*"
+        message: "Het kost je {{ states.sensor.google_iphone_naar_huis.state }}min om naar huis te gaan. Je kunt het beste rijden via {{states.sensor.waze_route_naar_huis.state}}"
 
   - alias: Inkt Levels
+    initial_state: true
     trigger:
       - platform: numeric_state
         entity_id: sensor.hp_ink_black
-        below: '20'
+        below: '30'
       - platform: numeric_state
         entity_id: sensor.hp_ink_color
-        below: '20'
+        below: '30'
     action:
     - service_template: notify.telegram
       data_template:
-        title: "HP Envy"
+        title: "*HP Envy*"
         message: "Inkt niveau van de printer is laag!"
 
   - alias: 'WakeUp Light Bedroom'
@@ -279,3 +537,71 @@
                 - fri
     action:
       service: script.wakeup_bedroom
+
+
+  - alias: Weerbericht Telegram
+    initial_state: true
+    trigger:
+      platform: time
+      at: '08:00:00'
+    action:
+      service: notify.telegram
+      data:
+        title: '*Weerbericht*' 
+        message: 'Het wordt vandaag maximaal *{{ states.sensor.yweather_temperature_max.state }}°C* en minimaal *{{ states.sensor.yweather_temperature_min.state }}°C*. Op dit moment is het *{{ states.sensor.netatmo_tuin_temperature.state }}°C* en *{{ states.sensor.beringe_symbol.state }}*. 
+
+
+Luchtvochtigheid is: *{{states.sensor.netatmo_tuin_humidity.state}}%*
+
+Voorspelde regen: *{{states.sensor.beringe_precipitation_forecast_average.state}}mm/h*
+
+Windsnelheid: *{{states.sensor.yweather_wind_speed.state}}km/h*
+
+Zon onder: *{{ as_timestamp(states.sun.sun.attributes.next_setting)  | timestamp_custom("%H:%M") }} uur*
+
+Zon op: *{{ as_timestamp(states.sun.sun.attributes.next_rising)  | timestamp_custom("%H:%M") }} uur*'
+
+  
+  - alias: Notify iOS Berging Lamp
+    initial_state: true
+    hide_entity: true
+    trigger:
+      platform: state
+      entity_id: device_tracker.iphonevanbram
+      to: home
+    condition:
+    - condition: state
+      entity_id: sun.sun
+      state: 'below_horizon'
+    - condition: state
+      entity_id: device_tracker.android4e7c4028ee690a68
+      state: 'not_home'
+    - condition: state
+      entity_id: light.berging
+      state: 'off'
+#    - condition: state
+#      entity_id: light.woonkamer
+#      state: 'off'
+    action:
+        service: notify.ios_iphonevanbram
+        data:
+          title: "Licht in de bering" #customizable
+          message: "Wil je de lamp in de berging aanzetten?" #customizable 
+          data:
+            push:
+              badge: 0 #this will remove the badge/app icon number
+              category: 'huelight'
+  
+  - alias: iOS app notification action light
+    initial_state: true
+    hide_entity: true  
+    trigger:
+      platform: event
+      event_type: ios.notification_action_fired
+      event_data:
+        actionName: 'TURN_ON_LIGHT'
+    action:
+      service: scene.turn_on
+      entity_id: scene.berging_gedimd
+
+  

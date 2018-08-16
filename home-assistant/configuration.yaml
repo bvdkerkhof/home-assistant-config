@@ -1,29 +1,94 @@
 homeassistant:
- 
+  name: Home
+  latitude: !secret homeassistant_latitude
+  longitude: !secret homeassistant_longitude
+  elevation: !secret homeassistant_elevation
+  unit_system: metric
+  time_zone: Europe/Amsterdam
+  customize: !include customize.yaml
 
-zone:
-  - name: Home
-    latitude: #
-    longitude: #
-    radius: #
-    icon: mdi:home
 
-    ## CUSTOM ZONES
+frontend:
+  javascript_version: latest
+config:
 
+http:
+  api_password: !secret http_password
+  ip_ban_enabled: True
+  login_attempts_threshold: 2
+  use_x_forwarded_for: True
+  trusted_proxies:
+    - 127.0.0.1
+    - 192.168.2.25
+  trusted_networks:
+    - 192.168.2.0/24
+  base_url: 'https://myurl.com'
+
+updater:
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+# conversation:
+
+history:
+logbook:
+#logger:
+#  default: info
+recorder:
+  purge_keep_days: 5
+
+map:
+sun:
+ios: 
+  push:
+    categories:
+      - name: HueLight
+        identifier: 'huelight'
+        actions:
+          - identifier: 'TURN_ON_LIGHT'
+            title: 'Zet berging lamp aan'
+          - identifier: 'TURN_OFF_LIGHT'
+            title: 'Geen actie'
+      - name: HueLight2
+        identifier: 'huelight2'
+        actions:
+          - identifier: 'TURN_OFF_LIGHT2'
+            title: 'Zet alle lampen uit'
+            destructive: true
+          - identifier: 'NO_ACTION'
+            title: 'Geen actie'
+weather:
+  - platform: buienradar
+    name: Weerbericht Buienradar
+    forecast: True
+
+zone: !include zones.yaml
+
+# Text to speech
+tts:
+  - platform: microsoft
+    api_key: !secret microsoft_tts1
+    language: nl-nl
+    type: HannaRUS
+
+# Cloud
+cloud:
 
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
-
-
+mqtt: !include mqtt.yaml
 
 media_player:
   - platform: kodi
-    host: x.x.x.x
-    port: xxxx
+    host: *.*.*.*
+    port: ****
   - platform: ps4
-    host: x.x.x.x
+    host: *.*.*.*
+#  - platform: spotify
+#    client_id: !secret spotify_clientid
+#    client_secret: !secret spotify_clientsecret
 
 netatmo:
   api_key: !secret netatmo_apikey
@@ -32,25 +97,28 @@ netatmo:
   password: !secret netatmo_password
 
 sensor:
+  - platform: untappd
+    id: !secret untappd_key
+    secret: !secret untappd_secret
+    username: !secret untappd_user1
+
   - platform: netatmo
     modules:
       Woonkamer:
       Tuin:
+        - min_temp
+        - max_temp
+
   - platform: buienradar
-    name: LOCATION
+    name: Beringe
     monitored_conditions:
-      - temperature_1d
-      - temperature_2d
-      - temperature_3d
-      - symbol_1d
-      - symbol_2d
-      - symbol_3d
-      - rainchance_1d
-      - rainchance_2d
-      - rainchance_3d
-      - condition_1d
-      - condition_2d
-      - condition_3d
+      - temperature
+      - stationname
+      - groundtemperature
+      - precipitation
+      - precipitation_forecast_average
+      - symbol
+
   - platform: speedtest
     hour:
       - 4
@@ -74,49 +142,137 @@ sensor:
       - type: load_15m
       - type: processor_use
   - platform: postnl
+    name: PostNL
     username: !secret postnl_username
     password: !secret postnl_password
 
-#Hue Motion Sensor Overloop Custom REST Api uitlezen
   - platform: rest
-    resource: http://x.x.x.x/api/MYCUSTOMKEY/sensors/26
-    value_template: '{{ value_json.state.lightlevel }}'
-    unit_of_measurement: Lux
-    name: 'x Lux'
-  
+    resource:  ********
+    value_template: '{{ value_json.response.user.stats.total_beers}}'
+    scan_interval: 600
+    unit_of_measurement: beers
+    name: 'Untappd Unique Beers'
   - platform: rest
-    resource: http://x.x.x.x/api/MYCUSTOMKEY/sensors/24
-    value_template: '{{ value_json.state.temperature | float / 100 }}'
-    unit_of_measurement: °C
-    name: 'x Temperatuur'
-
+    resource:  *******
+    value_template: '{{ value_json.response.user.stats.total_checkins}}'
+    scan_interval: 600
+    unit_of_measurement: beers
+    name: 'Untappd Total Beers'
   - platform: rest
-    resource: http://x.x.x.x/api/MYCUSTOMKEY/sensors/24
-    value_template: '{{ value_json.config.battery }}'
-    unit_of_measurement: '%'
-    name: 'x batterij'
-
-  - platform: waze_travel_time
-    origin: XX
-    destination: XX
-    region: 'EU'
-    name: Custom Name
-  - platform: waze_travel_time
-    origin: XX
-    destination: XX
-    region: 'EU'
-    name: Custom Name 2
+    resource:  ********
+    value_template: '{{ value_json.response.user.stats.total_badges}}'
+    scan_interval: 600
+    unit_of_measurement: badges
+    name: 'Untappd Total Badges'
 
   - platform: template
     sensors:
-      waze_route_naar_XX:
-        friendly_name: XX
-        value_template: '{{ states.sensor.XX.attributes.route}}'
+      untappd_badge:
+       value_template: "Recent Badge: {{ states.sensor.untappd_last_badge.attributes.badge }} (Level {{ states.sensor.untappd_last_badge.attributes.level }})"
+
+  - platform: template
+    sensors:
+      untappd_beer:
+       value_template: "Recent Beer: {{ states.sensor.untappd_last_checkin.attributes.beer }} ({{ states.sensor.untappd_last_checkin.attributes.abv }})"
+
+
+#FreeNAS monitoring for Volumes through API
+  - platform: rest
+    name: 'Freenas Data'
+    json_attributes:
+      - vol_name
+      - total_si
+      - used_si
+      - used_pct
+      - status
+    resource: ******/api/v1.0/storage/volume/1/?format=json
+    value_template: '{{ value_json.name }}'
+    scan_interval: 3600
+    username: !secret fn_user
+    password: !secret fn_password
+    authentication: basic
+    headers:
+      Content-Type: application/json
+
+  - platform: template
+    sensors:
+      freenas_data_total_si:
+        friendly_name: 'Total Space'
+        value_template: '{{ states.sensor.freenas_data.attributes["total_si"] }}'
+      freenas_data_used_si:
+        friendly_name: 'Used space'
+        value_template: '{{ states.sensor.freenas_data.attributes["used_si"] }}'
+      freenas_data_used_pct:
+        friendly_name: 'Used Percentage'
+        value_template: '{{ states.sensor.freenas_data.attributes["used_pct"] }}'
+      freenas_data_status:
+        friendly_name: 'Status'
+        value_template: '{{ states.sensor.freenas_data.attributes["status"] }}'
+
+
+#Hue Motion Sensor Overloop Custom REST Api uitlezen
+  - platform: rest
+    resource: *****sensors/26
+    value_template: '{{ value_json.state.lightlevel }}'
+    unit_of_measurement: Lux
+    name: 'Overloop Lux'
+  
+  - platform: rest
+    resource: *****/sensors/24
+    value_template: '{{ value_json.state.temperature | float / 100 }}'
+    unit_of_measurement: °C
+    name: 'Overloop Temperatuur'
+
+  - platform: rest
+    resource: *****/sensors/24
+    value_template: '{{ value_json.config.battery }}'
+    unit_of_measurement: '%'
+    name: 'Overloop batterij'
+
+  - platform: waze_travel_time
+    origin: 'device_tracker.iphonevanbram'
+    destination: zone.home
+    region: 'EU'
+    name: Waze naar huis
+  - platform: waze_travel_time
+    origin: zone.home
+    destination: zone.pulse_venlo
+    region: 'EU'
+    name: Thuis naar Pulse Venlo
+  - platform: waze_travel_time
+    origin: zone.pulse_venlo
+    destination: zone.home
+    region: 'EU'
+    name: Pulse Venlo naar huis
+
+  - platform: template
+    sensors:
+      travel_before_sunset:
+        friendly_name: 'Sunset travel time'
+        value_template: '{{ ( as_timestamp(states.sun.sun.attributes.next_setting) - (states("sensor.google_iphone_naar_huis") | int)  * 60 + (states("input_slider.auto_light_duration") | float) * 60 * 60  )  | timestamp_custom("%H:%M") }}'
+
+  - platform: template
+    sensors:
+      waze_route_naar_huis:
+        friendly_name: "Waze route naar huis"
+        value_template: '{{ states.sensor.waze_naar_huis.attributes.route}}' 
         icon_template: mdi:routes
-      waze_route_naar_XX:
-        friendly_name: XX
-        value_template: '{{ states.sensor.XX.attributes.route}}' 
-        icon_template: mdi:routes
+
+#  - platform: template
+#    sensors:
+#      commute:
+#        friendly_name: Werk reistijd
+#        unit_of_measurement: Min
+#        value_template: >-
+#          {%- if is_state("device_tracker.iphonevanbram", "Home") 
+#                 and (0 < now().strftime("%w")|int < 6) 
+#                 and (7 < now().strftime("%H")|int < 9) %}
+#              {{ states.sensor.google_thuis_naar_pulse.state }}
+#          {% elif is_state("device_tracker.iphonevanbram", "Pulse Venlo") %}
+#              {{ states.sensor.google_pulse_naar_huis.state }}
+#          {% else %}
+#              0
+#          {%- endif %}
 
 #HP Envy Printer
   - platform: command_line
@@ -130,6 +286,12 @@ sensor:
     scan_interval: 1800
     unit_of_measurement: "%"
 
+  - platform: command_line
+    name: SSL expiry
+    unit_of_measurement: days
+    scan_interval: 10800
+    command: "ssl-cert-check -b -c /etc/letsencrypt/live/myurl.com/cert.pem | awk '{ print $NF }'"
+
   - platform: time_date
     display_options:
       - 'time'
@@ -142,19 +304,36 @@ sensor:
   - platform: google_travel_time
     name: Google iPhone naar huis
     api_key: !secret google_api4
-    origin: device_tracker.xx
+    origin: 'device_tracker.iphonevanbram'
     destination: zone.home
   - platform: google_travel_time
-    name: Google thuis xx
+    name: Google thuis naar Pulse
     api_key: !secret google_api
     origin: Home
-    destination: xx
+    destination: Pulse Venlo
   - platform: google_travel_time
-    name: Google xx 
+    name: Google Pulse naar huis
     api_key: !secret google_api2
-    origin: xx
+    origin: Pulse Venlo
     destination: Home
+  - platform: google_travel_time
+    name: Google naar Gemert
+    api_key: !secret google_api3
+    origin: device_tracker.iphonevanbram
+    destination: zone.gemert_fliere_44
+  - platform: google_travel_time
+    name: Google naar Schiphol
+    api_key: !secret google_api3
+    origin: device_tracker.iphonevanbram
+    destination: Schiphol, Netherlands
 
+  - platform: yweather
+    name: YWeather
+    monitored_conditions:
+      - weather
+      - temp_min
+      - temp_max
+      - wind_speed
 
 #HUE WAKE-UP LIGHT
   - platform: template
@@ -191,41 +370,166 @@ sensor:
         value_template: '{{ states.input_number.wakeup_duration.state | int }}'
         unit_of_measurement: 'min'
 
+  - platform: template
+    sensors:
+      sunset_time:
+        value_template: '{{ as_timestamp(states.sun.sun.attributes.next_setting)  | timestamp_custom("%H:%M") }}'
+        friendly_name: "Zon onder"
+
+  - platform: template
+    sensors:
+      sunrise_time:
+        value_template: '{{ as_timestamp(states.sun.sun.attributes.next_rising)  | timestamp_custom("%H:%M") }}'
+        friendly_name: "Zon op" 
+
+  - platform: rest
+    resource: 'https://creativecommons.tankerkoenig.de/json/prices.php?apikey=*'
+    name: Euro95 Aral
+    value_template: '{{ value_json.prices["0314b4ac-e418-4650-b5f7-6f11f1a725bc"].e5 }}'
+    scan_interval: 1800
+
+  - platform: scrape
+    name: Euro95 GLA
+    resource: "https://www.unitedconsumers.com/brandstofprijzen"
+    select: ".table div:nth-of-type(8)"
+    value_template: "{{ value.split(' ')[1].replace(',', '.') | float }}"
+    scan_interval: 3600
+
+  - platform: template
+    sensors:
+      euro95_verschil:
+        friendly_name: 'Euro 95 verschil'
+        value_template: "{{ (states('sensor.euro95_gla') | float - states('sensor.euro95_aral')|float) | round(3) }}"
+
+#  - platform: template
+#    sensors:
+#      delta_temp_kamer:
+#        value_template: '{{ ((float(states.sensor.netatmo_woonkamer_temperature.state)) - (float(states.sensor.netatmo_tuin_temperature.state))) | round(2) }}' 
+#        unit_of_measurement: '°C'
+#        friendly_name: 'Delta temp Kamer Binnen - buiten'
+#        icon_template: "mdi:thermometer"
+
+# Afval kalender Peel en Maas
+  - platform: template
+    sensors:
+      afval_gft_buiten_offset:
+        friendly_name: "GFT buiten offset"
+        value_template: >
+          {% if as_timestamp(states.calendar.afval_peel_en_maas_gft.attributes.start_time) - as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) < 21600 and as_timestamp(states.calendar.afval_peel_en_maas_gft.attributes.end_time) > as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) %}on{% else %}off{% endif %}		
+      afval_pmd_buiten_offset:
+        friendly_name: "PMD buiten offset"
+        value_template: >
+          {% if as_timestamp(states.calendar.afval_peel_en_maas_pmd.attributes.start_time) - as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) < 21600 and as_timestamp(states.calendar.afval_peel_en_maas_pmd.attributes.end_time) > as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) %}on{% else %}off{% endif %}
+      afval_papier_buiten_offset:
+        friendly_name: "Papier buiten offset"
+        value_template: >
+          {% if as_timestamp(states.calendar.afval_peel_en_maas_papier.attributes.start_time) - as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) < 21600 and as_timestamp(states.calendar.afval_peel_en_maas_papier.attributes.end_time) > as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) %}on{% else %}off{% endif %}
+      afval_rest_buiten_offset:
+        friendly_name: "Rest buiten offset"
+        value_template: >
+          {% if as_timestamp(states.calendar.afval_peel_en_maas_rest.attributes.start_time) - as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) < 21600 and as_timestamp(states.calendar.afval_peel_en_maas_rest.attributes.end_time) > as_timestamp(strptime(states.sensor.date__time.state, "%Y-%m-%d, %H:%M" ) ) %}on{% else %}off{% endif %}
+      afval_gft_datum:
+        value_template: '{{ as_timestamp(states.calendar.afval_peel_en_maas_gft.attributes.start_time)  | timestamp_custom("%d-%m-%Y") }}'
+        friendly_name: "GFT"
+        icon_template: /local/gft.png
+      afval_pmd_datum:
+        value_template: '{{ as_timestamp(states.calendar.afval_peel_en_maas_pmd.attributes.start_time)  | timestamp_custom("%d-%m-%Y") }}'
+        friendly_name: "PMD"
+        icon_template: /local/pmd.png
+      afval_rest_datum:
+        value_template: '{{ as_timestamp(states.calendar.afval_peel_en_maas_rest.attributes.start_time)  | timestamp_custom("%d-%m-%Y") }}'
+        friendly_name: "Rest"
+        icon_template: /local/rest.png
+      afval_papier_datum:
+        value_template: '{{ as_timestamp(states.calendar.afval_peel_en_maas_papier.attributes.start_time)  | timestamp_custom("%d-%m-%Y") }}'
+        friendly_name: "Papier"
+        icon_template: /local/papier.png
+
 device_tracker:
   - platform: unifi
     username: !secret unifi_username
     password: !secret unifi_password
-    host: x.x.x.x
-    port: XXX
+    host: *.*.*.*
+    port: ***
     verify_ssl: False
-  - platform: icloud2
-    username: !secret icloud_username
-    password: !secret icloud_password
-    account_name: !secret icloud_account
-    filter_devices: 'phone'
+    detection_time: 240
+  - platform: bluetooth_tracker
 
 hue:
   bridges:
-    - host: x.x.x.x
+    - host: *.*.*.*
       allow_hue_groups: true
 
-
+history_graph:
+  gr1:
+    name: Temperatuur Netatmo
+    entities:
+      - sensor.netatmo_woonkamer_temperature
+      - sensor.overloop_temperatuur
+#      - sensor.mqtt_office_temperature
+      - sensor.netatmo_tuin_temperature
+    hours_to_show: 48
+    refresh: 120
+  gr2:
+    name: Temperatuur woonkamer
+    entities:
+      - sensor.netatmo_woonkamer_temperature
+    hours_to_show: 48
+    refresh: 120
+  gr3:
+    name: Temperatuur buiten
+    entities:
+      - sensor.netatmo_tuin_temperature
+  gr4:
+    name: Luchtvochtigheid buiten
+    entities:
+      - sensor.netatmo_tuin_humidity
+  gr5:
+    name: Geluid woonkamer
+    entities:
+      - sensor.netatmo_woonkamer_noise
+  gr6:
+    name: CO2 woonkamer
+    entities:
+      - sensor.netatmo_woonkamer_co2
+  gr7:
+    name: Luchtvochtigheid woonkamer
+    entities:
+      - sensor.netatmo_woonkamer_humidity
+  gr8:
+    name: Speedtest KPN
+    entities:
+      - sensor.speedtest_download
+      - sensor.speedtest_upload
+  gr9:
+    name: Pingtest KPN
+    entities:
+      - sensor.speedtest_ping
+    refresh: 60
+  gr10:
+    name: Raspberry Pi Load
+    entities:
+      - sensor.load_1m
+      - sensor.load_5m
+      - sensor.load_15m
+    refresh: 120
+    hours_to_show: 168
 
 telegram_bot:
   - platform: polling
     api_key: !secret telegram_api
     allowed_chat_ids:
-      - xx
+      - 12908122
 
 notify:
   - name: Telegram
     platform: telegram
-    chat_id: xx
+    chat_id: 12908122
 
 p2000:
-    regios: xx
-    disciplines: x
-    distance: xx
+    regios: 23
+    disciplines: 1,2,3
+    distance: 5000
     interval: 30
 
 #HUE WAKE-UP LIGHT
@@ -261,3 +565,16 @@ input_boolean:
     name: 'Wakeup weekends'
     icon: mdi:power
     initial: off
+
+camera:
+  - platform: generic
+    name: Buienradar
+    still_image_url:  http://api.buienradar.nl/image/1.0/RadarMapNL?w=500&h=512
+  - platform: generic
+    name: Pollenradar
+    still_image_url: http://pollennieuws.nl/weerkaart/KaartNL_280-website.png
+
+google:
+  client_id: !secret google_cal_id
+  client_secret: !secret google_cal_secret
+  track_new_calendar: false

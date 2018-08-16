@@ -1,0 +1,578 @@
+resources:
+  - url: /local/gauge-card.js?v=2
+    type: js
+  - url: /local/custom_ui/weather-card.js
+    type: js
+  - url: /local/custom_ui/bignumber-card.js?v=1
+    type: js
+title: Ber Vullingsstraat
+views:
+  - icon: mdi:home-assistant
+    id: home
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: entity-filter
+            title: Thuis
+            entities:
+              - entity: device_tracker.iphonevanbram
+                name: Bram
+              - entity: device_tracker.android4e7c4028ee690a68
+                name: Yvonne
+              - entity: device_tracker.iphonebrampulse
+                name: Pulse
+              - entity: device_tracker.iphone
+                name: Bavaria
+            state_filter:
+              - 'home'
+            card:
+              title: Thuis
+              type: glance
+
+          - type: glance
+            title: Zon op/onder
+            entities:
+              - entity: sensor.sunrise_time
+                name: Opkomst
+              - entity: sensor.sunset_time
+                name: Onder
+              - entity: sensor.travel_before_sunset
+                name: Reistijd
+          - type: entities
+            title: Lampen
+            show_header_toggle: false
+            entities:
+              - light.woonkamer
+              - light.hal
+              - light.berging
+              - light.slaapkamer
+              - light.overloop
+
+      - type: vertical-stack
+        cards:
+          - type: glance
+            title: Temperatuur
+            entities:
+              - entity: sensor.netatmo_woonkamer_temperature
+                name: Woonkamer
+              - entity: sensor.overloop_temperatuur
+                name: Overloop
+              - entity: sensor.netatmo_tuin_temperature
+                name: Tuin
+              - entity: sensor.yweather_temperature_max
+                name: Max
+              - entity: sensor.yweather_temperature_min
+                name: Min
+
+          - type: entity-filter
+            title: Afval soorten
+            entities:
+              - entity: sensor.afval_gft_buiten_offset
+                name: GFT
+              - entity: sensor.afval_pmd_buiten_offset
+                name: PMD
+              - entity: sensor.afval_rest_buiten_offset
+                name: Rest
+              - entity: sensor.afval_papier_buiten_offset
+                name: Papier
+            state_filter:
+              - 'on'
+            card:
+              title: Afval buiten zetten?
+              type: glance
+          - type: custom:weather-card
+            entity_weather: weather.weerbericht_buienradar
+            entity_sun: sun.sun
+      - type: picture-entity
+        entity: camera.buienradar
+
+  - icon: mdi:sofa
+    id: woonkamer
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Woonkamer spot
+            show_header_toggle: false
+            entities:
+              - light.woonkamer
+              - light.spot_woonkamer1
+              - light.spot_woonkamer2
+              - light.spot_woonkamer3
+          - type: entities
+            title: Woonkamer scenes
+            show_header_toggle: false
+            entities:
+              - scene.woonkamer_aan
+              - scene.woonkamer_gedimd
+              - scene.woonkamer_voetbal
+              - scene.woonkamer_uit
+
+      - type: vertical-stack
+        cards:
+          - type: glance
+            title: Klimaat
+            entities:
+              - entity: sensor.netatmo_woonkamer_temperature
+                name: Temp
+              - entity: sensor.netatmo_woonkamer_noise
+                name: Geluid
+              - entity: sensor.netatmo_woonkamer_humidity
+                name: Vochtigheid
+              - entity: sensor.netatmo_woonkamer_co2
+                name: CO2
+              - entity: sensor.netatmo_woonkamer_pressure
+                name: Pressure
+          - type: entities
+            title: Kodi Scripts
+            show_header_toggle: false
+            entities:
+              - script.update_library
+              - script.restart_kodi
+
+      - type: vertical-stack
+        cards:
+          - type: history-graph
+            title: Temperatuur
+            hours_to_show: 72
+            refresh_interval: 300
+            entities: 
+              - sensor.netatmo_woonkamer_temperature
+          - type: history-graph
+            title: Geluid
+            hours_to_show: 72
+            refresh_interval: 300
+            entities:
+              - sensor.netatmo_woonkamer_noise 
+
+      - type: media-control
+        entity: media_player.kodi 
+      - type: media-control
+        entity: media_player.playstation_4
+
+  - icon: mdi:door
+    id: Hal
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Hal lamp
+            show_header_toggle: false
+            entities:
+              - light.hal_lamp
+          - type: entities
+            title: Hal scenes
+            show_header_toggle: false
+            entities:
+              - scene.hal_aan
+              - scene.hal_gedimd
+              - scene.hal_uit
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Berging lamp
+            show_header_toggle: false
+            entities:
+              - light.berging_lamp
+          - type: entities
+            title: Berging scenes
+            show_header_toggle: false
+            entities:
+              - scene.berging_aan
+              - scene.berging_gedimd
+              - scene.berging_uit
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Overloop lamp
+            show_header_toggle: false
+            entities:
+              - light.overloop_lamp
+          - type: entities
+            title: Overloop scenes
+            show_header_toggle: false
+            entities:
+              - scene.overloop_aan
+              - scene.overloop_gedimd
+              - scene.overloop_uit
+          - type: glance
+            title: Overloop Hue Motion
+            entities:
+              - entity: sensor.overloop_lux
+                name: Lux
+              - entity: sensor.overloop_temperatuur
+                name: Temp
+              - entity: sensor.overloop_batterij
+                name: Batterij
+
+  - icon: mdi:hotel
+    id: slaapkamer
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Slaapkamer lamp
+            show_header_toggle: false
+            entities:
+              - light.slaapkamer_lamp
+          - type: entities
+            title: Slaapkamer scenes
+            show_header_toggle: false
+            entities:
+              - scene.slaapkamer_aan
+              - scene.slaapkamer_gedimd
+              - scene.slaapkamer_uit
+
+      - type: entities
+        title: Philips WakeUp Light
+        show_header_toggle: false
+        entities:
+          - sensor.wakeup_alarm_time
+          - sensor.wakeup_start_time_lights
+          - sensor.wakeup_fadein_duration
+          - input_number.wakeup_hour
+          - input_number.wakeup_minutes
+          - input_number.wakeup_duration
+          - input_boolean.wakeup
+          - input_boolean.wakeup_weekends
+
+  - icon: mdi:flower
+    id: tuin
+    cards:
+      - type: glance
+        title: Netatmo
+        entities:
+          - entity: sensor.netatmo_tuin_temperature
+            name: Temp
+          - entity: sensor.netatmo_tuin_humidity
+            name: Humidity
+          - entity: sensor.netatmo_tuin_radio
+            name: Signaal
+          - entity: sensor.netatmo_tuin_battery
+            name: Batterij
+      - type: entities
+        title: Weerbericht
+        show_header_toggle: false
+        entities:
+          - entity: sensor.beringe_temperature
+            name: Temperatuur
+          - entity: sensor.beringe_ground_temperature
+          - entity: sensor.beringe_precipitation
+          - entity: sensor.beringe_precipitation_forecast_average
+          - entity: sensor.beringe_symbol
+          - entity: sensor.sunrise_time
+          - entity: sensor.sunset_time
+    
+      - type: vertical-stack
+        cards:
+          - type: history-graph
+            title: Buiten temperatuur
+            hours_to_show: 72
+            refresh_interval: 300
+            entities:
+              - sensor.netatmo_tuin_temperature
+          - type: history-graph
+            title: Netatmo Temperatuur
+            hours_to_show: 72
+            refresh: 300
+            entities:
+              - sensor.netatmo_woonkamer_temperature
+              - sensor.netatmo_tuin_temperature
+              - sensor.overloop_temperatuur
+          - type: history-graph
+            title: Buiten luchtvochtigheid
+            hours_to_show: 72
+            refresh: 300
+            entities:
+              - sensor.netatmo_tuin_humidity
+      - type: picture-entity
+        entity: camera.pollenradar
+
+  - icon: mdi:cellphone-link
+    id: devices
+    cards:
+      - type: glance
+        title: Devices
+        entities:
+          - entity: device_tracker.iphonevanbram
+            name: Bram
+          - entity: device_tracker.android4e7c4028ee690a68
+            name: Yvonne
+          - entity: device_tracker.iphonebrampulse
+            name: Pulse
+          - entity: device_tracker.iphone
+            name: Bavaria
+          - entity:  device_tracker.airvanbram
+            name: Air
+      - type: vertical-stack
+        cards:
+          - type: glance
+            title: HP Envy 5530
+            entities:
+              - entity: sensor.hp_ink_black
+                name: Black
+              - entity: sensor.hp_ink_color
+                name: Color
+          - type: horizontal-stack
+            cards:
+              - type: custom:gauge-card
+                title: Black ink
+                entity: sensor.hp_ink_black
+                min: 0
+                max: 100
+                scale: 45px
+                severity:
+                  red: 40
+                  amber: 60
+                  green: 70
+              - type: custom:gauge-card
+                title: Color ink
+                entity: sensor.hp_ink_color
+                min: 0
+                max: 100
+                scale: 45px
+                severity:
+                  red: 40
+                  amber: 60
+                  green: 70
+
+      - type: horizontal-stack
+        cards:
+          - type: custom:gauge-card
+            title: CPU use
+            entity: sensor.processor_use
+            min: 0
+            max: 100
+            scale: 45px
+            severity:
+              red: 75
+              green: 0
+              amber: 30
+          - type: custom:gauge-card
+            title: Memory Use
+            entity: sensor.memory_use_percent
+            min: 0
+            max: 100
+            scale: 45px
+            severity:
+              red: 75
+              green: 0
+              amber: 50
+      - type: horizontal-stack
+        cards:
+          - type: custom:gauge-card
+            title: Disk Use
+            entity: sensor.disk_use_percent_home
+            min: 0
+            max: 100
+            scale: 45px
+            severity:
+              red: 75
+              amber: 30
+              green: 0
+          - type: custom:gauge-card
+            title: SSL Expiry
+            entity: sensor.ssl_expiry
+            min: 0
+            max: 90
+            scale: 45px
+        
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Raspberry Pi
+            entities:
+              - sensor.load_1m
+              - sensor.load_5m
+              - sensor.load_15m
+              - sensor.memory_use_percent
+              - sensor.processor_use
+              - sensor.disk_use_percent_home
+              - sensor.uptime_home_assistant
+              - sensor.ssl_expiry
+          - type: history-graph
+            title: RPi Average Load
+            hours_to_show: 24
+            refresh_interval: 300
+            entities:
+              - sensor.load_1m
+              - sensor.load_5m
+              - sensor.load_15m
+      - type: entities
+        title: FreeNAS Data
+        entities:
+          - sensor.freenas_data_total_si
+          - sensor.freenas_data_used_si
+          - sensor.freenas_data_used_pct
+          - sensor.freenas_data_status
+
+  - icon: mdi:car
+    id: overige
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: PostNL
+            entities:
+              - entity: sensor.postnl
+          - type: entities
+            title: Benzine prijs
+            entities:
+              - sensor.euro95_aral
+              - sensor.euro95_gla
+          - type: custom:bignumber-card
+            title: Aral goedkoper
+            entity: sensor.euro95_verschil
+            scale: 30px
+            from: bottom
+      - type: glance
+        title: Afval ophalen
+        entities:
+          - sensor.afval_gft_datum
+          - sensor.afval_pmd_datum
+          - sensor.afval_rest_datum
+          - sensor.afval_papier_datum
+
+      - type: entities
+        title: 'Reistijd(en)'
+        entities:
+          - sensor.travel_before_sunset
+          - entity: sensor.google_thuis_naar_pulse
+            name: naar Pulse
+          - entity: sensor.google_pulse_naar_huis
+            name: naar Huis vanuit Pulse
+          - entity: sensor.google_naar_gemert
+            name: 'naar Gemert (Fliere 44)'
+          - entity: sensor.google_iphone_naar_huis
+            name: 'huidige locatie naar huis'
+          - entity: sensor.waze_route_naar_huis
+            name: 'Route naar huis'
+  - icon: mdi:untappd
+    id: untappd
+    cards:
+      - type: picture-elements
+        image: /local/cards/untappd.png
+        elements:
+        - type: state-icon
+          entity: sensor.untappd_last_checkin
+          style:
+            top: 18px
+            left: 8px
+            transform: none
+        - type: state-label
+          entity: sensor.untappd_beer
+          style:
+            top: 8%
+            left: 52px
+            transform: none
+            color: rgb(255, 255, 255)
+            font-family: Trebuchet MS
+            font-size: 90%
+            font-weight: bold
+            border-left-style: solid
+            border-color: Yellow
+            background-color: rgb(4, 4, 4, 0.6)
+            pointer-events: none
+            width: 263px
+            padding: 5px
+            border-top-right-radius: 5px
+        - type: state-icon
+          entity: sensor.untappd_last_badge
+          style:
+            top: 64px
+            left: 8px
+            transform: none
+        - type: state-label
+          entity: sensor.untappd_badge
+          style:
+            top: 63px
+            left: 52px
+            transform: none
+            color: rgb(255, 255, 255)
+            font-family: Trebuchet MS
+            font-size: 90%
+            font-weight: bold
+            border-left-style: solid
+            border-color: Orange
+            background-color: rgb(4, 4, 4, 0.6)
+            pointer-events: none
+            width: 263px
+            padding: 5px
+            border-bottom-right-radius: 5px
+
+        - type: state-icon
+          entity: sensor.untappd_on_the_wishlist
+          style:
+            bottom: 0px
+            left: 8px
+            transform: none
+            z-index: 2
+        - type: state-label
+          entity: sensor.untappd_on_the_wishlist
+          style:
+            bottom: 0px
+            left: 0px
+            transform: none
+            color: rgb(255, 255, 255)
+            -webkit-text-stroke: 0.2px rgb(0, 0, 0, 0.6)
+            text-shadow: 0.1px 0.1px rgb(0, 0, 0, 0.6)
+            font-family: Trebuchet MS
+            font-size: 90%
+            font-weight: bold
+            border-bottom-style: solid
+            border-color: LightSalmon
+            padding-left: 36px
+            padding-bottom: 8px
+            text-shadow: 2px 2px 2px black
+
+        - type: state-icon
+          entity: sensor.untappd_total_badges
+          style:
+            bottom: 0px
+            left: 78px
+            transform: none
+            z-index: 2
+        - type: state-label
+          entity: sensor.untappd_total_badges
+          style:
+            bottom: 0px
+            left: 74px
+            transform: none
+            color: rgb(255, 255, 255)
+            -webkit-text-stroke: 0.2px rgb(0, 0, 0, 0.6)
+            text-shadow: 0.1px 0.1px rgb(0, 0, 0, 0.6)
+            font-family: Trebuchet MS
+            font-size: 90%
+            font-weight: bold
+            border-bottom-style: solid
+            border-color: OrangeRed
+            padding-left: 36px
+            padding-bottom: 8px
+            text-shadow: 2px 2px 2px black
+
+        - type: state-icon
+          entity: sensor.untappd_unique_beers
+          style:
+            bottom: 0px
+            left: 228px
+            transform: none
+            z-index: 2
+        - type: state-label
+          entity: sensor.untappd_unique_beers
+          style:
+            bottom: 0px
+            left: 215px
+            transform: none
+            color: rgb(255, 255, 255)
+            -webkit-text-stroke: 0.2px rgb(0, 0, 0, 0.6)
+            text-shadow: 0.1px 0.1px rgb(0, 0, 0, 0.6)
+            font-family: Trebuchet MS
+            font-size: 90%
+            font-weight: bold
+            border-bottom-style: solid
+            border-color: Maroon    
+            padding-left: 36px
+            padding-bottom: 8px
+            text-shadow: 2px 2px 2px black
+
+

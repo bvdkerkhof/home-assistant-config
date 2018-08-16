@@ -1,3 +1,10 @@
+  - name: Alle lampen uit
+    entities:
+      light.woonkamer: off
+      light.hal: off
+      light.berging: off
+      light.overloop: off
+      light.slaapkamer: off
   - name: Nacht woonkamer hal
     entities:
       light.woonkamer: off
@@ -65,6 +72,23 @@
         state: on
         xy_color: [0.457, 0.4098]
         brightness: 40
+        transition: 2
+  - name: Woonkamer aan transition
+    entities:
+      light.spot_woonkamer1:
+        state: on
+        xy_color: [0.4575, 0.4101]
+        brightness: 254
+        transition: 2
+      light.spot_woonkamer2:
+        state: on
+        xy_color: [0.4575, 0.4101]
+        brightness: 254
+        transition: 2
+      light.spot_woonkamer3:
+        state: on
+        xy_color: [0.4575, 0.4101]
+        brightness: 254
         transition: 2
   - name: Hal aan
     entities:

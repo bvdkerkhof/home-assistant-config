@@ -1,0 +1,16 @@
+  - name: Home
+    latitude: !secret homeassistant_latitude
+    longitude: !secret homeassistant_longitude
+    radius: 50
+    icon: mdi:home
+  - name: Pulse Venlo
+    latitude: !secret pulse_venlo_latitude
+    longitude: !secret pulse_venlo_longitude
+    radius: 40
+    icon: mdi:briefcase
+  - name: Pulse Deventer
+    latitude: !secret pulse_deventer_latitude
+    longitude: !secret pulse_deventer_longitude
+    radius: 35
+    icon: mdi:briefcase
+

@@ -1,0 +1,114 @@
+
+    sensor.afval_gft_datum:
+      entity_picture: /local/gft.png
+    sensor.afval_pmd_datum:
+      entity_picture: /local/pmd.png
+    sensor.afval_rest_datum:
+      entity_picture: /local/rest.png
+    sensor.afval_papier_datum:
+      entity_picture: /local/papier.png
+    sensor.afval_gft_buiten_offset:
+      entity_picture: /local/gft.png
+    sensor.afval_pmd_buiten_offset:
+      entity_picture: /local/pmd.png
+    sensor.afval_papier_buiten_offset:
+      entity_picture: /local/papier.png
+    sensor.afval_rest_buiten_offset:
+      entity_picture: /local/rest.png
+    sensor.beringe_precipitation:
+      friendly_name: Neerslag
+    sensor.beringe_symbol:
+      friendly_name: Weer
+    sensor.beringe_temperature:
+      friendly_name: Temperatuur
+    sensor.beringe_ground_temperature:
+      friendly_name: Grond temperatuur
+    sensor.beringe_precipitation_forecast_average:
+      friendly_name: Totaal voorspelde regen
+    sensor.euro95_aral:
+      icon: mdi:gas-station
+      unit_of_measurement: "€/l"
+    sensor.euro95_gla:
+      icon: mdi:gas-station
+      unit_of_measurement: "€/l"
+    sensor.euro95_verschil:
+      icon: mdi:gas-station
+      unit_of_measurement: "€/l"
+    sensor.freenas_data_total_si:
+      icon: mdi:harddisk
+    sensor.freenas_backup_total_si:
+      icon: mdi:harddisk
+    sensor.freenas_data_used_si:
+      icon: mdi:harddisk
+    sensor.freenas_backup_used_si:
+      icon: mdi:harddisk
+    sensor.freenas_data_used_pct:
+      icon: mdi:gauge
+    sensor.freenas_backup_used_pct:
+      icon: mdi:gauge
+    sensor.freenas_data_status:
+      icon: mdi:hospital
+    sensor.freenas_backup_status:
+      icon: mdi:hospital
+    sensor.untappd_total_beers:
+      entity_picture: /local/icons/beer.png
+    sensor.untappd_unique_beers:
+      entity_picture: /local/icons/beer.png
+    sensor.untappd_total_badges:
+      entity_picture: /local/icons/badge.png
+    sensor.ssl_expiry:
+      icon: mdi:security-lock
+    sensor.sunrise_time:
+      icon: mdi:weather-sunset-up
+    sensor.sunset_time:
+      icon: mdi:weather-sunset-down
+    sensor.travel_before_sunset:
+      icon: mdi:timer
+    group.all_automations:
+      hidden: false
+    group.all_devices:
+      hidden: false
+    group.all_lights:
+      hidden: false
+    group.all_scripts:
+      hidden: false
+    group.all_switches:
+      hidden: false
+    script.update_library:
+      icon: mdi:cloud-sync
+    script.restart_kodi:
+      icon: mdi:autorenew
+    light.woonkamer:
+      icon: mdi:sofa
+    light.spot_woonkamer1:
+      icon: mdi:spotlight-beam
+    light.spot_woonkamer2:
+      icon: mdi:spotlight-beam
+    light.spot_woonkamer3:
+      icon: mdi:spotlight-beam
+    light.hal_lamp:
+      icon: mdi:ceiling-light
+    light.hal:
+      icon: mdi:ceiling-light
+    light.slaapkamer:
+      icon: mdi:hotel
+    light.berging:
+      icon: mdi:door
+    light.berging_lamp:
+      icon: mdi:door
+    light.overloop:
+      icon: mdi:ceiling-light
+    sensor.hp_ink_black:
+      icon: mdi:printer
+    sensor.hp_ink_color:
+      icon: mdi:printer
+    sensor.overloop_batterij:
+      icon: mdi:battery
+    sensor.google_iphone_naar_huis:
+      icon: mdi:car
+    sensor.google_naar_gemert:
+      icon: mdi:car
+    sensor.google_pulse_naar_huis:
+      icon: mdi:car
+    sensor.google_thuis_naar_pulse:
+      icon: mdi:car
