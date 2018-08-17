@@ -401,13 +401,13 @@ sensor:
         friendly_name: 'Euro 95 verschil'
         value_template: "{{ (states('sensor.euro95_gla') | float - states('sensor.euro95_aral')|float) | round(3) }}"
 
-#  - platform: template
-#    sensors:
-#      delta_temp_kamer:
-#        value_template: '{{ ((float(states.sensor.netatmo_woonkamer_temperature.state)) - (float(states.sensor.netatmo_tuin_temperature.state))) | round(2) }}' 
-#        unit_of_measurement: '°C'
-#        friendly_name: 'Delta temp Kamer Binnen - buiten'
-#        icon_template: "mdi:thermometer"
+  - platform: template
+    sensors:
+      delta_temp_kamer:
+        value_template: '{{ ((float(states.sensor.netatmo_woonkamer_temperature.state)) - (float(states.sensor.netatmo_tuin_temperature.state))) | round(2) }}' 
+        unit_of_measurement: '°C'
+        friendly_name: 'Delta temp Kamer Binnen - buiten'
+        icon_template: "mdi:thermometer"
 
 # Afval kalender Peel en Maas
   - platform: template
