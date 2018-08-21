@@ -13,4 +13,8 @@
     longitude: !secret pulse_deventer_longitude
     radius: 35
     icon: mdi:briefcase
-
+  - name: Gemert Fliere 44
+    latitude: !secret gemert_latitude
+    longitude: !secret gemert_longitude
+    radius: 30
+    icon: mdi:home-alert

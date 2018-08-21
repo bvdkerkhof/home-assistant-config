@@ -1,0 +1,13 @@
+  push:
+    categories:
+      - name: light
+        identifier: 'LIGHT'
+        actions:
+          - identifier: 'TURN_LIGHT_ON'
+            title: 'Verlicht de berging'
+            activationMode: 'background'
+            authenticationRequired: no
+          - identifier: 'TURN_LIGHT_OFF'
+            title: 'Geen verlichting'
+            activationMode: 'background'
+            authenticationRequired: no

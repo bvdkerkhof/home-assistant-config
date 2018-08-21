@@ -1,1 +1,6 @@
 secrets.yaml
+entity_registry.yaml
+google_calendars.yaml
+ip_bans.yaml
+zones.yaml
+known_devices.yaml

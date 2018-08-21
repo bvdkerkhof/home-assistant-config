@@ -6,10 +6,14 @@ homeassistant:
   unit_system: metric
   time_zone: Europe/Amsterdam
   customize: !include customize.yaml
+#  auth_providers:
+#    - type: homeassistant
+#auth:
 
-
+# Enables the frontend
 frontend:
   javascript_version: latest
+# Enables configuration UI
 config:
 
 http:
@@ -19,10 +23,10 @@ http:
   use_x_forwarded_for: True
   trusted_proxies:
     - 127.0.0.1
-    - 192.168.2.25
+    - x.x.x.x
   trusted_networks:
-    - 192.168.2.0/24
-  base_url: 'https://myurl.com'
+    - x.x.x.x
+  base_url: 'http://my_url.com'
 
 updater:
 discovery:
@@ -37,6 +41,7 @@ logbook:
 recorder:
   purge_keep_days: 5
 
+homekit: !include homekit.yaml
 map:
 sun:
 ios: 
@@ -82,13 +87,11 @@ mqtt: !include mqtt.yaml
 
 media_player:
   - platform: kodi
-    host: *.*.*.*
-    port: ****
+    host: x.x.x.x
+    port: xxxx
   - platform: ps4
-    host: *.*.*.*
-#  - platform: spotify
-#    client_id: !secret spotify_clientid
-#    client_secret: !secret spotify_clientsecret
+    host: x.x.x.x
+
 
 netatmo:
   api_key: !secret netatmo_apikey
@@ -100,7 +103,7 @@ sensor:
   - platform: untappd
     id: !secret untappd_key
     secret: !secret untappd_secret
-    username: !secret untappd_user1
+    username: !secret untappd_user
 
   - platform: netatmo
     modules:
@@ -110,7 +113,7 @@ sensor:
         - max_temp
 
   - platform: buienradar
-    name: Beringe
+    name: XXXXXXXXXs
     monitored_conditions:
       - temperature
       - stationname
@@ -147,19 +150,19 @@ sensor:
     password: !secret postnl_password
 
   - platform: rest
-    resource:  ********
+    resource:  x.x.x.x
     value_template: '{{ value_json.response.user.stats.total_beers}}'
     scan_interval: 600
     unit_of_measurement: beers
     name: 'Untappd Unique Beers'
   - platform: rest
-    resource:  *******
+    resource:  x.x.x.x
     value_template: '{{ value_json.response.user.stats.total_checkins}}'
     scan_interval: 600
     unit_of_measurement: beers
     name: 'Untappd Total Beers'
   - platform: rest
-    resource:  ********
+    resource:  x.x.x.x
     value_template: '{{ value_json.response.user.stats.total_badges}}'
     scan_interval: 600
     unit_of_measurement: badges
@@ -176,6 +179,7 @@ sensor:
        value_template: "Recent Beer: {{ states.sensor.untappd_last_checkin.attributes.beer }} ({{ states.sensor.untappd_last_checkin.attributes.abv }})"
 
 
+
 #FreeNAS monitoring for Volumes through API
   - platform: rest
     name: 'Freenas Data'
@@ -185,7 +189,7 @@ sensor:
       - used_si
       - used_pct
       - status
-    resource: ******/api/v1.0/storage/volume/1/?format=json
+    resource: http://x.x.x.x/api/v1.0/storage/volume/1/?format=json
     value_template: '{{ value_json.name }}'
     scan_interval: 3600
     username: !secret fn_user
@@ -212,38 +216,24 @@ sensor:
 
 #Hue Motion Sensor Overloop Custom REST Api uitlezen
   - platform: rest
-    resource: *****sensors/26
+    resource: http://x.x.x.x
     value_template: '{{ value_json.state.lightlevel }}'
     unit_of_measurement: Lux
     name: 'Overloop Lux'
   
   - platform: rest
-    resource: *****/sensors/24
+    resource: http://x.x.x.x
     value_template: '{{ value_json.state.temperature | float / 100 }}'
     unit_of_measurement: °C
     name: 'Overloop Temperatuur'
 
   - platform: rest
-    resource: *****/sensors/24
+    resource: http://x.x.x.x
     value_template: '{{ value_json.config.battery }}'
     unit_of_measurement: '%'
     name: 'Overloop batterij'
 
-  - platform: waze_travel_time
-    origin: 'device_tracker.iphonevanbram'
-    destination: zone.home
-    region: 'EU'
-    name: Waze naar huis
-  - platform: waze_travel_time
-    origin: zone.home
-    destination: zone.pulse_venlo
-    region: 'EU'
-    name: Thuis naar Pulse Venlo
-  - platform: waze_travel_time
-    origin: zone.pulse_venlo
-    destination: zone.home
-    region: 'EU'
-    name: Pulse Venlo naar huis
+ 
 
   - platform: template
     sensors:
@@ -253,26 +243,12 @@ sensor:
 
   - platform: template
     sensors:
+
       waze_route_naar_huis:
         friendly_name: "Waze route naar huis"
         value_template: '{{ states.sensor.waze_naar_huis.attributes.route}}' 
         icon_template: mdi:routes
 
-#  - platform: template
-#    sensors:
-#      commute:
-#        friendly_name: Werk reistijd
-#        unit_of_measurement: Min
-#        value_template: >-
-#          {%- if is_state("device_tracker.iphonevanbram", "Home") 
-#                 and (0 < now().strftime("%w")|int < 6) 
-#                 and (7 < now().strftime("%H")|int < 9) %}
-#              {{ states.sensor.google_thuis_naar_pulse.state }}
-#          {% elif is_state("device_tracker.iphonevanbram", "Pulse Venlo") %}
-#              {{ states.sensor.google_pulse_naar_huis.state }}
-#          {% else %}
-#              0
-#          {%- endif %}
 
 #HP Envy Printer
   - platform: command_line
@@ -290,7 +266,7 @@ sensor:
     name: SSL expiry
     unit_of_measurement: days
     scan_interval: 10800
-    command: "ssl-cert-check -b -c /etc/letsencrypt/live/myurl.com/cert.pem | awk '{ print $NF }'"
+    command: "ssl-cert-check -b -c /etc/letsencrypt/live/x.x.x.x/cert.pem | awk '{ print $NF }'"
 
   - platform: time_date
     display_options:
@@ -304,28 +280,23 @@ sensor:
   - platform: google_travel_time
     name: Google iPhone naar huis
     api_key: !secret google_api4
-    origin: 'device_tracker.iphonevanbram'
+    origin: 'device_tracker.'
     destination: zone.home
   - platform: google_travel_time
-    name: Google thuis naar Pulse
+    name: Google thuis
     api_key: !secret google_api
     origin: Home
-    destination: Pulse Venlo
+    destination: 
   - platform: google_travel_time
-    name: Google Pulse naar huis
+    name: Google 
     api_key: !secret google_api2
-    origin: Pulse Venlo
+    origin: 
     destination: Home
   - platform: google_travel_time
-    name: Google naar Gemert
+    name: Google 
     api_key: !secret google_api3
-    origin: device_tracker.iphonevanbram
-    destination: zone.gemert_fliere_44
-  - platform: google_travel_time
-    name: Google naar Schiphol
-    api_key: !secret google_api3
-    origin: device_tracker.iphonevanbram
-    destination: Schiphol, Netherlands
+    origin: device_tracker.
+    destination: zone.
 
   - platform: yweather
     name: YWeather
@@ -383,7 +354,7 @@ sensor:
         friendly_name: "Zon op" 
 
   - platform: rest
-    resource: 'https://creativecommons.tankerkoenig.de/json/prices.php?apikey=*'
+    resource: 'https://creativecommons.tankerkoenig.de/json/prices.php?apikey='
     name: Euro95 Aral
     value_template: '{{ value_json.prices["0314b4ac-e418-4650-b5f7-6f11f1a725bc"].e5 }}'
     scan_interval: 1800
@@ -449,15 +420,15 @@ device_tracker:
   - platform: unifi
     username: !secret unifi_username
     password: !secret unifi_password
-    host: *.*.*.*
-    port: ***
+    host: xxxx
+    port: xx
     verify_ssl: False
     detection_time: 240
   - platform: bluetooth_tracker
 
 hue:
   bridges:
-    - host: *.*.*.*
+    - host: xxxxx
       allow_hue_groups: true
 
 history_graph:
@@ -519,12 +490,12 @@ telegram_bot:
   - platform: polling
     api_key: !secret telegram_api
     allowed_chat_ids:
-      - 12908122
+      - xx
 
 notify:
   - name: Telegram
     platform: telegram
-    chat_id: 12908122
+    chat_id: xx
 
 p2000:
     regios: 23
