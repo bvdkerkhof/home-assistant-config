@@ -102,13 +102,13 @@
           - thu
           - fri
       - condition: state
-        entity_id: 'device_tracker.iphonevanbram'
-        state: 'Pulse Venlo'
+        entity_id: 'device_tracker.DEVICE'
+        state: 'COMPANY PLAATS'
     action:
       service: notify.telegram
       data:
         title: "*Bijna donker!*"
-        message: "De zon gaat om *{{states.sensor.sunset_time.state}}* onder. Je moet nog *{{states.sensor.google_iphone_naar_huis.state}} min* rijden om thuis te komen. Je moet nu dus gaan om op tijd thuis te zijn! De snelste route is via {{states.sensor.waze_naar_huis.attributes.route}}"
+        message: "De zon gaat om *{{states.sensor.sunset_time.state}}* onder. Je moet nog *{{states.sensor.google_DEVICE_naar_huis.state}} min* rijden om thuis te komen. Je moet nu dus gaan om op tijd thuis te zijn! De snelste route is via {{states.sensor.waze_naar_huis.attributes.route}}"
 
 
   - alias: Lampen aan niemand thuis
@@ -123,7 +123,7 @@
         entity_id: group.hue_lights_alert
         state: 'on'
     action:
-      service: notify.ios_iphonevanbram
+      service: notify.ios_DEVICE
       data:
         title: "Lampen aangebleven" #customizable
 #        message: "Er zijn lampen aangebleven, wat wil je dat ik doe?" #customizable 
@@ -182,7 +182,7 @@
       after: '00:00:00'
       before: '05:00:00'
     - condition: state
-      entity_id: device_tracker.iphonevanbram
+      entity_id: device_tracker.DEVICE
       state: 'home'
     action:
       service: scene.turn_on
@@ -192,55 +192,55 @@
     initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.iphonevanbram
+      entity_id: device_tracker.DEVICE
       to: home
     action:
       service: notify.telegram
       data:
-        title: "*iPhone 8 thuis*"
+        title: "*DEVICE 8 thuis*"
         message: "Bram entered the building"
 
   - alias: Bram weg Telegram
     initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.iphonevanbram
+      entity_id: device_tracker.DEVICE
       from: home
       to: not_home
     action:
       service: notify.telegram
       data:
-        title: "*iPhone 8 weg*" 
+        title: "*DEVICE 8 weg*" 
         message: "Bram left the building"
 
-#  - alias: Bram Pulse thuis iOS
+#  - alias: Bram COMPANY thuis iOS
 #    trigger:
 #      platform: state
-#      entity_id: device_tracker.iphonebrampulse
+#      entity_id: device_tracker.DEVICEbramCOMPANY
 #      from: not_home
 #      to: home
 #    action:
-#      service: notify.ios_iphonebrampulse
+#      service: notify.ios_DEVICEbramCOMPANY
 #      data:
-#        title: "Pulse is Thuis"
-#        message: "Pulse entered the building"
-#  - alias: Bram Pulse weg iOS
+#        title: "COMPANY is Thuis"
+#        message: "COMPANY entered the building"
+#  - alias: Bram COMPANY weg iOS
 #    trigger:
 #      platform: state
-#      entity_id: device_tracker.iphonebrampulse
+#      entity_id: device_tracker.DEVICEbramCOMPANY
 #      from: home
 #      to: not_home
 #    action:
-#      service: notify.ios_iphonebrampulse
+#      service: notify.ios_DEVICEbramCOMPANY
 #      data:
-#        title: "Pulse is weg"
-#        message: "Pulse left the building"
+#        title: "COMPANY is weg"
+#        message: "COMPANY left the building"
 
   - alias: Yvonne thuis Telegram
     initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.android4e7c4028ee690a68
+      entity_id: device_tracker.DEVICE
       to: home
     action:
       service: notify.telegram
@@ -252,7 +252,7 @@
     initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.android4e7c4028ee690a68
+      entity_id: device_tracker.DEVICE
       from: home
       to: not_home
     action:
@@ -265,14 +265,14 @@
     initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.iphonevanbram
+      entity_id: device_tracker.DEVICE
       to: home
     condition:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: state
-      entity_id: device_tracker.android4e7c4028ee690a68
+      entity_id: device_tracker.DEVICE
       state: 'not_home'
     - condition: state
       entity_id: light.berging
@@ -465,7 +465,7 @@
     initial_state: true
     trigger:
       platform: state
-      entity_id: device_tracker.iphonevanbram
+      entity_id: device_tracker.DEVICE
       from: "home"
       to: "not_home"
     condition:
@@ -481,21 +481,21 @@
     action:
       service: notify.telegram
       data:
-        title: "*Reistijd Pulse*"
-        message: "Het kost je {{ states.sensor.thuis_naar_pulse_venlo.state }}min om bij Pulse te komen. Je kunt het beste via {{states.sensor.waze_route_naar_pulse.state }} rijden"
+        title: "*Reistijd COMPANY*"
+        message: "Het kost je {{ states.sensor.thuis_naar_COMPANY_PLAATS.state }}min om bij COMPANY te komen. Je kunt het beste via {{states.sensor.waze_route_naar_COMPANY.state }} rijden"
 
   - alias: Traveltime to home
     initial_state: true
     trigger:
       platform: zone
-      entity_id: device_tracker.iphonevanbram
-      zone: zone.pulse_venlo
+      entity_id: device_tracker.DEVICE
+      zone: zone.COMPANY_PLAATS
       event: "leave"
     action:
       service: notify.telegram
       data:
         title: "*Reistijd naar huis*"
-        message: "Het kost je {{ states.sensor.google_iphone_naar_huis.state }}min om naar huis te gaan. Je kunt het beste rijden via {{states.sensor.waze_route_naar_huis.state}}"
+        message: "Het kost je {{ states.sensor.google_DEVICE_naar_huis.state }}min om naar huis te gaan. Je kunt het beste rijden via {{states.sensor.waze_route_naar_huis.state}}"
 
   - alias: Inkt Levels
     initial_state: true
@@ -548,12 +548,12 @@
       service: notify.telegram
       data:
         title: '*Weerbericht*' 
-        message: 'Het wordt vandaag maximaal *{{ states.sensor.yweather_temperature_max.state }}°C* en minimaal *{{ states.sensor.yweather_temperature_min.state }}°C*. Op dit moment is het *{{ states.sensor.netatmo_tuin_temperature.state }}°C* en *{{ states.sensor.beringe_symbol.state }}*. 
+        message: 'Het wordt vandaag maximaal *{{ states.sensor.yweather_temperature_max.state }}°C* en minimaal *{{ states.sensor.yweather_temperature_min.state }}°C*. Op dit moment is het *{{ states.sensor.netatmo_tuin_temperature.state }}°C* en *{{ states.sensor.PLAATS_symbol.state }}*. 
 
 
 Luchtvochtigheid is: *{{states.sensor.netatmo_tuin_humidity.state}}%*
 
-Voorspelde regen: *{{states.sensor.beringe_precipitation_forecast_average.state}}mm/h*
+Voorspelde regen: *{{states.sensor.PLAATS_precipitation_forecast_average.state}}mm/h*
 
 Windsnelheid: *{{states.sensor.yweather_wind_speed.state}}km/h*
 
@@ -567,14 +567,14 @@ Zon op: *{{ as_timestamp(states.sun.sun.attributes.next_rising)  | timestamp_cus
     hide_entity: true
     trigger:
       platform: state
-      entity_id: device_tracker.iphonevanbram
+      entity_id: device_tracker.DEVICE
       to: home
     condition:
     - condition: state
       entity_id: sun.sun
       state: 'below_horizon'
     - condition: state
-      entity_id: device_tracker.android4e7c4028ee690a68
+      entity_id: device_tracker.DEVICE
       state: 'not_home'
     - condition: state
       entity_id: light.berging
@@ -583,7 +583,7 @@ Zon op: *{{ as_timestamp(states.sun.sun.attributes.next_rising)  | timestamp_cus
 #      entity_id: light.woonkamer
 #      state: 'off'
     action:
-        service: notify.ios_iphonevanbram
+        service: notify.ios_DEVICE
         data:
           title: "Licht in de bering" #customizable
           message: "Wil je de lamp in de berging aanzetten?" #customizable 
