@@ -604,4 +604,38 @@ Zon op: *{{ as_timestamp(states.sun.sun.attributes.next_rising)  | timestamp_cus
       service: scene.turn_on
       entity_id: scene.berging_gedimd
 
+  - alias: Nachtvorst Autoruit
+    initial_state: true
+    trigger:
+      - platform: time
+        at: '20:00:00'
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - sun
+            - mon
+            - tue
+            - wed
+            - thu
+        - condition: numeric_state
+          entity_id: sensor.dark_sky_overnight_low_temperature_0
+          below: '1.0'
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: input_select.house_state
+              state: 'Thuis'
+            - condition: state
+              entity_id: input_select.house_state
+              state: 'Thuis XXXX'
+            - condition: state
+              entity_id: input_select.house_state
+              state: 'Slapen'
+    action:
+      - service: notify.ios_DEVICEX
+        data_template:
+          title: "Autoruit Krabben"
+          message: 'Het wordt vannacht {{states.sensor.dark_sky_overnight_low_temperature_0.state}} graden, dek je autoruit snel af!'
   
