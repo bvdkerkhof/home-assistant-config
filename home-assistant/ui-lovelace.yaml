@@ -1,10 +1,13 @@
 resources:
-  - url: /local/gauge-card.js?v=2
-    type: js
-  - url: /local/custom_ui/weather-card.js
+  - url: /local/custom_ui/weather-card.js?v=2.1
     type: js
   - url: /local/custom_ui/bignumber-card.js?v=1
     type: js
+  - url: /local/custom_ui/slider-entity-row.js?v=1.0
+    type: js
+  - url: /local/custom_ui/fold-entity-row.js?v=1.0
+    type: js
+
 title: Ber Vullingsstraat
 views:
   - icon: mdi:home-assistant
@@ -15,22 +18,26 @@ views:
           - type: entity-filter
             title: Thuis
             entities:
-              - entity: device_tracker.iphonevanbram
-                name: Bram
-              - entity: device_tracker.android4e7c4028ee690a68
-                name: Yvonne
-              - entity: device_tracker.iphonebrampulse
-                name: Pulse
+              - entity: device_tracker.X
+                name: NAME
+              - entity: device_tracker.Y
+                name: NAME
+              - entity: device_tracker.Z
+                name: NAME
               - entity: device_tracker.iphone
-                name: Bavaria
+                name: COMPANY-X
             state_filter:
               - 'home'
             card:
               title: Thuis
               type: glance
-
+          - type: entities
+            title: Woning Status
+            entities:
+              - input_select.house_state
           - type: glance
             title: Zon op/onder
+            id: home-zonoponder
             entities:
               - entity: sensor.sunrise_time
                 name: Opkomst
@@ -40,13 +47,21 @@ views:
                 name: Reistijd
           - type: entities
             title: Lampen
-            show_header_toggle: false
+            id: home-lampen
+            show_header_toggle: true
             entities:
-              - light.woonkamer
-              - light.hal
-              - light.berging
-              - light.slaapkamer
-              - light.overloop
+              - type: custom:slider-entity-row
+                entity: light.woonkamer
+              - type: custom:slider-entity-row
+                entity: light.hal
+              - type: custom:slider-entity-row
+                entity: light.berging
+              - type: custom:slider-entity-row
+                entity: light.kantoor
+              - type: custom:slider-entity-row
+                entity: light.slaapkamer
+              - type: custom:slider-entity-row
+                entity: light.overloop
 
       - type: vertical-stack
         cards:
@@ -59,9 +74,9 @@ views:
                 name: Overloop
               - entity: sensor.netatmo_tuin_temperature
                 name: Tuin
-              - entity: sensor.yweather_temperature_max
+              - entity: sensor.dark_sky_daytime_high_temperature_0
                 name: Max
-              - entity: sensor.yweather_temperature_min
+              - entity: sensor.dark_sky_overnight_low_temperature_0
                 name: Min
 
           - type: entity-filter
@@ -84,10 +99,6 @@ views:
             entity_weather: weather.weerbericht_buienradar
             entity_sun: sun.sun
 
-#      - type: weather-forecast
-#        title: Weerbericht Buienradar
-#        entity: weather.weerbericht_buienradar
-
       - type: picture-entity
         entity: camera.buienradar
 
@@ -101,17 +112,26 @@ views:
             show_header_toggle: false
             entities:
               - light.woonkamer
-              - light.spot_woonkamer1
-              - light.spot_woonkamer2
-              - light.spot_woonkamer3
-          - type: entities
-            title: Woonkamer scenes
-            show_header_toggle: false
-            entities:
-              - scene.woonkamer_aan
-              - scene.woonkamer_gedimd
-              - scene.woonkamer_voetbal
-              - scene.woonkamer_uit
+              - type: custom:fold-entity-row
+                head:
+                  type: section
+                  label: Woonkamer Spots
+                items:
+                  - type: custom:slider-entity-row
+                    entity: light.spot_woonkamer1
+                  - type: custom:slider-entity-row
+                    entity: light.spot_woonkamer2
+                  - type: custom:slider-entity-row
+                    entity: light.spot_woonkamer3
+              - type: custom:fold-entity-row
+                head:
+                  type: section
+                  label: Woonkamer Scenes
+                items:
+                  - scene.woonkamer_aan
+                  - scene.woonkamer_gedimd
+                  - scene.woonkamer_voetbal
+                  - scene.woonkamer_uit
 
       - type: vertical-stack
         cards:
@@ -128,8 +148,13 @@ views:
                 name: CO2
               - entity: sensor.netatmo_woonkamer_pressure
                 name: Pressure
-#              - entity: sensor.netatmo_woonkamer_wifi
-#                name: Signaal
+          - type: entities
+            title: Radio
+            show_header_toggle: false
+            entities:
+              - input_select.radio_station
+              - input_select.chromecast_radio
+              - script.playradio
           - type: entities
             title: Kodi Scripts
             show_header_toggle: false
@@ -155,62 +180,106 @@ views:
       - type: media-control
         entity: media_player.kodi 
       - type: media-control
-        entity: media_player.playstation_4
+        entity: media_player.huiskamer
 
   - icon: mdi:door
     id: Hal
     cards:
       - type: vertical-stack
         cards:
-          - type: entities
-            title: Hal lamp
-            show_header_toggle: false
+          - type: entity-filter
             entities:
-              - light.hal_lamp
-          - type: entities
-            title: Hal scenes
-            show_header_toggle: false
-            entities:
-              - scene.hal_aan
-              - scene.hal_gedimd
-              - scene.hal_uit
+              - entity: light.hal_lamp
+                name: Hal
+              - entity: light.spot_woonkamer1
+                name: Woonkamer
+              - entity: light.berging_lamp
+                name: Berging
+              - entity: light.overloop_lamp
+                name: Overloop
+              - entity: light.slaapkamer_lamp
+                name: Slaapkamer
+              - entity: light.kantoor_spot_1
+                name: Kantoor
+            state_filter:
+              - unavailable 
+            card:
+              type: glance
+              title: Lampen Unavailable
+            show_empty: false
       - type: vertical-stack
         cards:
           - type: entities
-            title: Berging lamp
-            show_header_toggle: false
+            title: Hal
+            show_header_toggle: true
             entities:
-              - light.berging_lamp
-          - type: entities
-            title: Berging scenes
-            show_header_toggle: false
-            entities:
-              - scene.berging_aan
-              - scene.berging_gedimd
-              - scene.berging_uit
+              - type: custom:slider-entity-row
+                entity: light.hal_lamp
+              - type: custom:fold-entity-row
+                head: 
+                  type: section
+                  label: Hal scenes
+                items:
+                  - scene.hal_aan
+                  - scene.hal_gedimd
+                  - scene.hal_uit
       - type: vertical-stack
         cards:
           - type: entities
-            title: Overloop lamp
-            show_header_toggle: false
+            title: Kantoor
+            show_header_toggle: true
+            entities:
+              - type: custom:slider-entity-row
+                entity: light.kantoor
+              - type: custom:fold-entity-row
+                head: 
+                  type: section
+                  label: Kantoor scenes
+                items: 
+                  - scene.kantoor_aan
+                  - scene.kantoor_uit
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Berging
+            show_header_toggle: true
+            entities:
+              - type: custom:slider-entity-row
+                entity: light.berging_lamp
+              - type: custom:fold-entity-row
+                head: 
+                  type: section
+                  label: Berging scenes
+                items: 
+                  - scene.berging_aan
+                  - scene.berging_gedimd
+                  - scene.berging_uit
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Overloop
+            show_header_toggle: true
             entities:
               - light.overloop_lamp
-          - type: entities
-            title: Overloop scenes
-            show_header_toggle: false
-            entities:
-              - scene.overloop_aan
-              - scene.overloop_gedimd
-              - scene.overloop_uit
-          - type: glance
-            title: Overloop Hue Motion
-            entities:
-              - entity: sensor.overloop_lux
-                name: Lux
-              - entity: sensor.overloop_temperatuur
-                name: Temp
-              - entity: sensor.overloop_batterij
-                name: Batterij
+              - type: custom:fold-entity-row
+                head: 
+                  type: section
+                  label: Overloop scenes
+                items: 
+                  - scene.overloop_aan
+                  - scene.overloop_gedimd
+                  - scene.overloop_uit
+              - type: custom:fold-entity-row
+                head: 
+                  type: section
+                  label: Overloop Hue Motion
+                items: 
+                  - entity: sensor.overloop_lux
+                    name: Lux
+                  - entity: sensor.overloop_temperatuur
+                    name: Temp
+                  - entity: sensor.overloop_batterij
+                    name: Batterij
 
   - icon: mdi:hotel
     id: slaapkamer
@@ -219,9 +288,10 @@ views:
         cards:
           - type: entities
             title: Slaapkamer lamp
-            show_header_toggle: false
+            show_header_toggle: true
             entities:
-              - light.slaapkamer_lamp
+              - type: custom:slider-entity-row
+                entity: light.slaapkamer_lamp
           - type: entities
             title: Slaapkamer scenes
             show_header_toggle: false
@@ -231,17 +301,25 @@ views:
               - scene.slaapkamer_uit
 
       - type: entities
-        title: Philips WakeUp Light
+        title: Wake-up Light
         show_header_toggle: false
         entities:
           - sensor.wakeup_alarm_time
-          - sensor.wakeup_start_time_lights
-          - sensor.wakeup_fadein_duration
-          - input_number.wakeup_hour
-          - input_number.wakeup_minutes
-          - input_number.wakeup_duration
           - input_boolean.wakeup
           - input_boolean.wakeup_weekends
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Instellingen
+            items:
+              - sensor.wakeup_alarm_time
+              - sensor.wakeup_start_time_lights
+              - sensor.wakeup_fadein_duration
+              - input_number.wakeup_hour
+              - input_number.wakeup_minutes
+              - input_number.wakeup_duration
+              - input_boolean.wakeup
+              - input_boolean.wakeup_weekends
 
   - icon: mdi:flower
     id: tuin
@@ -261,23 +339,23 @@ views:
         title: Weerbericht
         show_header_toggle: false
         entities:
-          - entity: sensor.beringe_temperature
+          - entity: sensor.PLAATS_temperature
             name: Temperatuur
-          - entity: sensor.beringe_ground_temperature
-          - entity: sensor.beringe_precipitation
-          - entity: sensor.beringe_precipitation_forecast_average
-          - entity: sensor.beringe_symbol
+          - entity: sensor.PLAATS_ground_temperature
+          - entity: sensor.PLAATS_precipitation
+          - entity: sensor.PLAATS_precipitation_forecast_average
+          - entity: sensor.PLAATS_symbol
           - entity: sensor.sunrise_time
           - entity: sensor.sunset_time
     
       - type: vertical-stack
         cards:
-          - type: history-graph
-            title: Buiten temperatuur
-            hours_to_show: 72
-            refresh_interval: 300
-            entities:
-              - sensor.netatmo_tuin_temperature
+          - type: sensor
+            name: Buiten temperatuur laatste 8 uur
+            entity: sensor.netatmo_tuin_temperature
+            line_color: "#8695F9" 
+            hours_to_show: 8
+            accuracy: 50
           - type: history-graph
             title: Netatmo Temperatuur
             hours_to_show: 72
@@ -286,12 +364,13 @@ views:
               - sensor.netatmo_woonkamer_temperature
               - sensor.netatmo_tuin_temperature
               - sensor.overloop_temperatuur
-          - type: history-graph
-            title: Buiten luchtvochtigheid
-            hours_to_show: 72
-            refresh: 300
-            entities:
-              - sensor.netatmo_tuin_humidity
+          - type: sensor
+            name: Buiten luchtvochtigheid laatste 8 uur
+            entity: sensor.netatmo_tuin_humidity
+            line_color: "#8695F9"
+            graph: line
+            hours_to_show: 8
+            accuracy: 50
       - type: picture-entity
         entity: camera.pollenradar
 
@@ -301,15 +380,15 @@ views:
       - type: glance
         title: Devices
         entities:
-          - entity: device_tracker.iphonevanbram
-            name: Bram
-          - entity: device_tracker.android4e7c4028ee690a68
-            name: Yvonne
-          - entity: device_tracker.iphonebrampulse
-            name: Pulse
-          - entity: device_tracker.iphone
-            name: Bavaria
-          - entity:  device_tracker.airvanbram
+          - entity: device_tracker.X
+            name: NAME
+          - entity: device_tracker.Y
+            name: NAME
+          - entity: device_tracker.Z
+            name: NAME
+          - entity: device_tracker.KENTEKEN
+            name: Leon
+          - entity:  device_tracker.airvanNAME
             name: Air
       - type: vertical-stack
         cards:
@@ -322,67 +401,61 @@ views:
                 name: Color
           - type: horizontal-stack
             cards:
-              - type: custom:gauge-card
+              - type: gauge
                 title: Black ink
                 entity: sensor.hp_ink_black
                 min: 0
                 max: 100
-                scale: 45px
                 severity:
                   red: 40
-                  amber: 60
+                  yellow: 60
                   green: 70
-              - type: custom:gauge-card
+              - type: gauge
                 title: Color ink
                 entity: sensor.hp_ink_color
                 min: 0
                 max: 100
-                scale: 45px
                 severity:
                   red: 40
-                  amber: 60
+                  yellow: 60
                   green: 70
 
       - type: horizontal-stack
         cards:
-          - type: custom:gauge-card
+          - type: gauge
             title: CPU use
             entity: sensor.processor_use
             min: 0
             max: 100
-            scale: 45px
             severity:
               red: 75
               green: 0
-              amber: 30
-          - type: custom:gauge-card
+              yellow: 30
+          - type: gauge
             title: Memory Use
             entity: sensor.memory_use_percent
             min: 0
             max: 100
-            scale: 45px
             severity:
               red: 75
               green: 0
-              amber: 50
+              yellow: 50
       - type: horizontal-stack
         cards:
-          - type: custom:gauge-card
+          - type: gauge
             title: Disk Use
             entity: sensor.disk_use_percent_home
             min: 0
             max: 100
-            scale: 45px
             severity:
               red: 75
-              amber: 30
+              yellow: 30
               green: 0
-          - type: custom:gauge-card
+          - type: gauge
             title: SSL Expiry
             entity: sensor.ssl_expiry
             min: 0
             max: 90
-            scale: 45px
         
       - type: vertical-stack
         cards:
@@ -405,8 +478,7 @@ views:
               - sensor.load_1m
               - sensor.load_5m
               - sensor.load_15m
-#      - type: vertical-stack
-#        cards:
+
       - type: entities
         title: FreeNAS Data
         entities:
@@ -414,31 +486,6 @@ views:
           - sensor.freenas_data_used_si
           - sensor.freenas_data_used_pct
           - sensor.freenas_data_status
-#          - type: entities
-#            title: FreeNAS data
-#            entities:
-#              - sensor.freenas_backup_total_si
-#              - sensor.freenas_backup_used_si
-#              - sensor.freenas_backup_used_pct
-#              - sensor.freenas_backup_status
-#            title: Speedtest
-#            entities:
-#              - sensor.speedtest_download
-#              - sensor.speedtest_upload
-#              - sensor.speedtest_ping
-#          - type: history-graph
-#            title: 'Speedtest Down/Up'
-#            hours_to_show: 72
-#            refresh_interval: 300
-#            entities:
-#              - sensor.speedtest_download
-#              - sensor.speedtest_upload
-#          - type: history-graph
-#            title: 'Speedtest Ping KPN'
-#            hours_to_show: 72
-#            refresh_interval: 300
-#            entities:
-#              - sensor.speedtest_ping
 
 
   - icon: mdi:car
@@ -460,6 +507,12 @@ views:
             entity: sensor.euro95_verschil
             scale: 30px
             from: bottom
+          - type: sensor
+            entity: sensor.euro95_verschil
+            name: Prijs verschil laatste 72 uur
+            hours_to_show: 72
+            accuracy: 50
+            
       - type: glance
         title: Afval ophalen
         entities:
@@ -467,26 +520,17 @@ views:
           - sensor.afval_pmd_datum
           - sensor.afval_rest_datum
           - sensor.afval_papier_datum
-#      - type: entities
-#        title: Untappd
-#        entities:
-#          - sensor.untappd_total_beers
-#          - sensor.untappd_unique_beers
-#          - sensor.untappd_total_badges
-#          - sensor.untappd_last_checkin
-#          - sensor.untappd_last_badge
-#          - sensor.untappd_on_the_wishlist
-#        image: /local/untappd.jpg
+
       - type: entities
         title: 'Reistijd(en)'
         entities:
           - sensor.travel_before_sunset
-          - entity: sensor.google_thuis_naar_pulse
-            name: naar Pulse
-          - entity: sensor.google_pulse_naar_huis
-            name: naar Huis vanuit Pulse
-          - entity: sensor.google_naar_gemert
-            name: 'naar Gemert (Fliere 44)'
+          - entity: sensor.google_thuis_naar_NAME
+            name: naar NAME
+          - entity: sensor.google_werk_naar_huis
+            name: naar Huis vanuit NAME klant
+          - entity: sensor.google_naar_PLAATS
+            name: 'naar PLAATS (STREET)'
           - entity: sensor.google_iphone_naar_huis
             name: 'huidige locatie naar huis'
           - entity: sensor.waze_route_naar_huis
@@ -559,7 +603,6 @@ views:
             transform: none
             color: rgb(255, 255, 255)
             -webkit-text-stroke: 0.2px rgb(0, 0, 0, 0.6)
-#            text-shadow: 0.1px 0.1px rgb(0, 0, 0, 0.6)
             font-family: Trebuchet MS
             font-size: 90%
             font-weight: bold
@@ -594,31 +637,6 @@ views:
             padding-bottom: 8px
             text-shadow: 2px 2px 2px black
 
-#        - type: state-icon
-#          entity: sensor.untappd_total_beers
-#          style:
-#            bottom: 0px
-#            left: 148px
-#            transform: none
-#            z-index: 2
-#        - type: state-label
-#          entity: sensor.untappd_total_beers
-#          style:
-#            bottom: 0px
-#            left: 141px
-#            transform: none
-#            color: rgb(255, 255, 255)
-#            -webkit-text-stroke: 0.2px rgb(0, 0, 0, 0.6)
-#            text-shadow: 0.1px 0.1px rgb(0, 0, 0, 0.6)
-#            font-family: Trebuchet MS
-#            font-size: 90%
-#            font-weight: bold
-#            border-bottom-style: solid
-#            border-color: FireBrick
-#            padding-left: 36px
-#            padding-bottom: 8px
-#            text-shadow: 2px 2px 2px black
-
         - type: state-icon
           entity: sensor.untappd_unique_beers
           style:
@@ -634,7 +652,6 @@ views:
             transform: none
             color: rgb(255, 255, 255)
             -webkit-text-stroke: 0.2px rgb(0, 0, 0, 0.6)
-#            text-shadow: 0.1px 0.1px rgb(0, 0, 0, 0.6)
             font-family: Trebuchet MS
             font-size: 90%
             font-weight: bold
@@ -643,5 +660,43 @@ views:
             padding-left: 36px
             padding-bottom: 8px
             text-shadow: 2px 2px 2px black
+
+
+  - icon: mdi:car
+    title: Leon
+    cards:
+    - type: vertical-stack
+      cards:
+      - type: picture-entity
+        image: /local/images/seatleon01.jpg
+        entity: sensor.KENTEKEN_mileage
+        name: Seat Leon Kilometerstand
+      - type: gauge
+        title: Brandstof
+        entity: sensor.KENTEKEN_fuel_left
+        min: 0
+        max: 50
+        severity:
+          green: 30
+          yellow: 20
+          red: 0
+      - type: glance
+        entities:
+        - entity: sensor.KENTEKEN_mileage_left
+          name: Actieradius
+        - entity: binary_sensor.KENTEKEN_locked
+          name: Deuren
+        - entity: binary_sensor.KENTEKEN_ignition
+          name: Status
+        - entity: binary_sensor.KENTEKEN_parking_brake
+          name: Handrem
+        - entity: sensor.KENTEKEN_battery
+          name: Accu
+      - type: map
+        aspect_ratio: 70%
+        default_zoom: 15
+        entities:
+        - device_tracker.KENTEKEN
+        - device_tracker.Z
 
 
